@@ -1,0 +1,143 @@
+@startuml diagrama-clases-los-alamos
+
+skinparam classAttributeIconSize 0
+
+' ==========================
+' Enumeraciones
+' ==========================
+
+' Una clase de tipo "enum" define una colección
+' de constantes; provee seguridad de tipos al
+' momento de compilación restringiendo una variable
+' a un predefinido conjunto de valores fijos.
+' En PlantUML, se identifican con un ícono a su izquierda con la letra "E".
+
+enum SituacionAdministrativa {
+    HABILITADO
+    SUSPENDIDO
+    DADO_DE_BAJA
+    MOROSO
+}
+
+enum NombreCategoria {
+    ACTIVO
+    VITALICIO
+    ADHERENTE
+}
+
+enum TipoRecurso {
+    QUINCHO
+    SALON
+    CANCHA
+    PARRILLA
+    ESPACIO_RECREACION
+}
+
+enum EstadoOperativo {
+    HABILITADO
+    DESHABILITADO
+}
+
+enum EstadoReserva {
+    PAGO_PARCIAL
+    CONFIRMADA
+    CANCELADA
+    FINALIZADA
+}
+
+enum MedioDePago {
+    TARJETA_CREDITO
+    TARJETA_DEBITO
+    BILLETERA_VIRTUAL
+}
+
+' ==========================
+' Clases persistentes
+' ==========================
+
+' Las clases persistentes son aquellas cuyos atributos e instancias se guardan
+' como datos dentro de una BD externa o un archivo externo para no perderse
+' al dejar de correr el programa.
+' Difieren de las no persistentes, cuyos datos no necesitan ser guardados
+' en el sistema al manejar lógica temporal o interfaces (ej. Calculadora,
+' ControladorVista).
+' En PlantUML, se identifican con un ícono a su izquierda con la letra "C".
+
+class Socio {
+    - numeroSocio: int
+    - nombre: String
+    - apellido: String
+    - documento: String
+    - telefono: String
+    - correoElectronico: String
+    - fechaIngreso: Date
+    - situacionAdministrativa: SituacionAdministrativa
+    --
+    + puedeReservar(): boolean
+}
+
+class CategoriaSocio {
+    - nombre: NombreCategoria
+    - porcentajeAjuste: double
+    --
+    + calcularAjuste(importe: double): double
+}
+
+class Recurso {
+    - codigo: String
+    - descripcion: String
+    - tipoRecurso: TipoRecurso
+    - capacidadMaxima: int
+    - precioBaseHora: double
+    - estadoOperativo: EstadoOperativo
+    --
+    + estaDisponible(fecha: Date, horaInicio: Time, horas: int): boolean
+}
+
+class Reserva {
+    - numeroReserva: String
+    - fechaCreacion: DateTime
+    - fechaUso: Date
+    - horarioInicio: Time
+    - duracionHoras: int
+    - importeTotal: double
+    - importeAbonado: double
+    - saldoPendiente: double
+    - medioDePago: MedioDePago
+    - estado: EstadoReserva
+    --
+    + calcularImporteTotal(): double
+    + confirmar(): void
+    + cancelar(): void
+    + finalizar(): void
+}
+
+class Pago {
+    - monto: double
+    - fecha: DateTime
+    - medioDePago: MedioDePago
+}
+
+' ==========================
+' Relaciones
+' ==========================
+
+' - Una flecha punteada indica que una clase temporalmente usa a otra
+'   dentro de un método como parámetro o variable local.
+' - Una línea no punteada indica que una clase tiene una referencia permanente
+'   a una instancia de otra clase dentro de un atributo suyo.
+
+Socio "1" -- "0..*" Reserva : realiza >
+Recurso "1" -- "0..*" Reserva : es reservado en >
+CategoriaSocio "1" -- "0..*" Socio : clasifica >
+Reserva "1" -- "1..*" Pago : registra >
+
+Socio -- SituacionAdministrativa
+CategoriaSocio -- NombreCategoria
+Recurso -- TipoRecurso
+Recurso -- EstadoOperativo
+Reserva -- EstadoReserva
+Reserva -- MedioDePago
+Pago -- MedioDePago
+
+@enduml

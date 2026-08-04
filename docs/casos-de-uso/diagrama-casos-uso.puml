@@ -1,0 +1,49 @@
+@startuml diagrama-casos-uso-los-alamos
+
+left to right direction
+skinparam packageStyle rectangle
+
+actor Socio
+actor Administrador as Admin
+
+rectangle "Sistema de Reservas - Los Álamos" {
+    usecase "Registrar socio" as CU1
+    usecase "Registrar recurso alquilable" as CU2
+    usecase "Administrar categorías de socios" as CU3
+    usecase "Configurar descuentos/recargos\npor categoría" as CU4
+    usecase "Registrar reserva" as CU5
+    usecase "Verificar disponibilidad\nde recurso" as CU5a
+    usecase "Verificar situación\nadministrativa del socio" as CU5b
+    usecase "Calcular importe de reserva" as CU5c
+    usecase "Realizar pago" as CU5d
+    usecase "Confirmar reserva" as CU6
+    usecase "Cancelar reserva" as CU7
+    usecase "Consultar reservas por socio" as CU8
+    usecase "Consultar reservas por\nrecurso y fecha" as CU9
+    usecase "Generar informe diario\nde reservas" as CU10
+}
+
+' Alias como "Admin", "CU1" y "CU5a" sirven de identificadores internos
+' dentro del código para posteriormente escribir las relaciones sin repetir
+' los nombres completos de los CU.
+
+Socio -- CU5
+Socio -- CU6
+Socio -- CU7
+Socio -- CU8
+
+Admin -- CU1
+Admin -- CU2
+Admin -- CU3
+Admin -- CU4
+Admin -- CU7
+Admin -- CU9
+Admin -- CU10
+
+CU5 ..> CU5a : <<include>>
+CU5 ..> CU5b : <<include>>
+CU5 ..> CU5c : <<include>>
+CU5 ..> CU5d : <<include>>
+CU6 ..> CU5d : <<include>>
+
+@enduml
