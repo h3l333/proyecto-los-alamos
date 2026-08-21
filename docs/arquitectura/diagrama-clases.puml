@@ -1,67 +1,5 @@
 @startuml diagrama-clases-los-alamos
-
 skinparam classAttributeIconSize 0
-
-' ==========================
-' Enumeraciones
-' ==========================
-
-' Una clase de tipo "enum" define una colección
-' de constantes; provee seguridad de tipos al
-' momento de compilación restringiendo una variable
-' a un predefinido conjunto de valores fijos.
-' En PlantUML, se identifican con un ícono a su izquierda con la letra "E".
-
-enum SituacionAdministrativa {
-    HABILITADO
-    SUSPENDIDO
-    DADO_DE_BAJA
-    MOROSO
-}
-
-enum NombreCategoria {
-    ACTIVO
-    VITALICIO
-    ADHERENTE
-}
-
-enum TipoRecurso {
-    QUINCHO
-    SALON
-    CANCHA
-    PARRILLA
-    ESPACIO_RECREACION
-}
-
-enum EstadoOperativo {
-    HABILITADO
-    DESHABILITADO
-}
-
-enum EstadoReserva {
-    PAGO_PARCIAL
-    CONFIRMADA
-    CANCELADA
-    FINALIZADA
-}
-
-enum MedioDePago {
-    TARJETA_CREDITO
-    TARJETA_DEBITO
-    BILLETERA_VIRTUAL
-}
-
-' ==========================
-' Clases persistentes
-' ==========================
-
-' Las clases persistentes son aquellas cuyos atributos e instancias se guardan
-' como datos dentro de una BD externa o un archivo externo para no perderse
-' al dejar de correr el programa.
-' Difieren de las no persistentes, cuyos datos no necesitan ser guardados
-' en el sistema al manejar lógica temporal o interfaces (ej. Calculadora,
-' ControladorVista).
-' En PlantUML, se identifican con un ícono a su izquierda con la letra "C".
 
 class Socio {
     - numeroSocio: int
@@ -71,27 +9,84 @@ class Socio {
     - telefono: String
     - correoElectronico: String
     - fechaIngreso: Date
-    - situacionAdministrativa: SituacionAdministrativa
+    - situacionAdministrativa: String
     --
     + puedeReservar(): boolean
+    + getNumeroSocio(): int
+    + getNombre(): String
+    + getApellido(): String
+    + getDocumento(): String
+    + getTelefono(): String
+    + getCorreoElectronico(): String
+    + getFechaIngreso(): Date
+    + getSituacionAdministrativa(): String
 }
 
+note left of Socio: situacionAdministrativa\npuede tomar los valores\n"habilitado", "suspendido",\n"dadodebaja" y "moroso".
+
 class CategoriaSocio {
-    - nombre: NombreCategoria
+    - nombre: String
     - porcentajeAjuste: double
     --
     + calcularAjuste(importe: double): double
+    + getNombre(): String
+    + getPorcentajeAjuste(): double
 }
 
-class Recurso {
+note right of CategoriaSocio: nombre puede tomar\nlos valores "activo",\n"vitalicio" y "adherente".
+
+abstract class Recurso {
     - codigo: String
     - descripcion: String
-    - tipoRecurso: TipoRecurso
     - capacidadMaxima: int
     - precioBaseHora: double
-    - estadoOperativo: EstadoOperativo
+    - habilitado: boolean
     --
     + estaDisponible(fecha: Date, horaInicio: Time, horas: int): boolean
+    + devolverTipo(): String
+    + getCodigo(): String
+    + getDescripcion(): String
+    + getCapacidadMaxima(): int
+    + getPrecioBaseHora(): double
+    + isHabilitado(): boolean
+}
+
+class Quincho extends Recurso {
+    - esCerrado: boolean
+    - tieneFreezer: boolean
+    - cantidadMesas: int
+    --
+    + isEsCerrado(): boolean
+    + isTieneFreezer(): boolean
+    + getCantidadMesas(): int
+}
+
+class Salon extends Recurso {
+    - tieneAireAcondicionado: boolean
+    - poseeEscenario: boolean
+    --
+    + isTieneAireAcondicionado(): boolean
+    + isPoseeEscenario(): boolean
+}
+
+class Cancha extends Recurso {
+    - tipoDeporte: String
+    - tieneIluminacion: boolean
+    --
+    + getTipoDeporte(): String
+    + isTieneIluminacion(): boolean
+}
+
+class Parrilla extends Recurso {
+    - capacidadKgCarne: double
+    --
+    + getCapacidadKgCarne(): double
+}
+
+class EspacioRecreacion extends Recurso {
+    - tipoEspacio: String
+    --
+    + getTipoEspacio(): String
 }
 
 class Reserva {
@@ -103,41 +98,99 @@ class Reserva {
     - importeTotal: double
     - importeAbonado: double
     - saldoPendiente: double
-    - medioDePago: MedioDePago
-    - estado: EstadoReserva
+    - estado: String
     --
     + calcularImporteTotal(): double
     + confirmar(): void
     + cancelar(): void
     + finalizar(): void
+    + getNumeroReserva(): String
+    + getFechaCreacion(): DateTime
+    + getFechaUso(): Date
+    + getHorarioInicio(): Time
+    + getDuracionHoras(): int
+    + getImporteTotal(): double
+    + getImporteAbonado(): double
+    + getSaldoPendiente(): double
+    + getEstado(): String
 }
 
-class Pago {
+note left of Reserva: estado puede tomar los siguientes valores:\n- "pagoparcial"\n- "confirmada"\n- "cancelada"\n- "finalizada"
+note right of Reserva: el medio de pago utilizado\nse obtiene del tipo concreto\nde Pago asociado (PagoCredito,\nPagoDebito o PagoBilleteraVirtual),\nno se duplica como atributo.
+
+abstract class Pago {
+    - idPago: String
     - monto: double
-    - fecha: DateTime
-    - medioDePago: MedioDePago
+    - fechaHora: DateTime
+    - codigoAutorizacion: String
+    - estado: String
+    --
+    + getFechaHora(): DateTime
+    + procesarPago(): boolean
+    + getIdPago(): String
+    + getMonto(): double
+    + getCodigoAutorizacion(): String
+    + getEstado(): String
 }
 
-' ==========================
-' Relaciones
-' ==========================
+note right of Pago: estado puede tomar\nlos valores "pendiente", "rechazado",\n"aprobado" y "cancelado".
+note left of Pago: codigoAutorizacion\n representa al código que\nretorna la pasarela de pagos\nal aprobar la operación.
 
-' - Una flecha punteada indica que una clase temporalmente usa a otra
-'   dentro de un método como parámetro o variable local.
-' - Una línea no punteada indica que una clase tiene una referencia permanente
-'   a una instancia de otra clase dentro de un atributo suyo.
+class PagoCredito extends Pago {
+    - bancoEmisor: String
+    - cantCuotas: int
+    - interesAplicado: double
+    --
+    + getBancoEmisor(): String
+    + getCantCuotas(): int
+    + getInteresAplicado(): double
+}
 
+class PagoDebito extends Pago {
+    - bancoEmisor: String
+    - cbu: String
+    - titularCuenta: String
+    --
+    + getTitularCuenta() : String
+    + getBancoEmisor(): String
+    + getCbu(): String
+}
+
+class PagoBilleteraVirtual extends Pago {
+    - nombrePlataforma: String
+    - cvu: String
+    - alias: String
+    --
+    + getNombrePlataforma(): String
+    + getCvu(): String
+    + getAlias(): String
+}
+
+class Club {
+    --
+    + registrarSocio(socio: Socio): void
+    + registrarRecurso(recurso: Recurso): void
+    + administrarCategoria(categoria: CategoriaSocio): void
+    + configurarAjusteCategoria(categoria: CategoriaSocio, porcentaje: double): void
+    + registrarReserva(reserva: Reserva): void
+    + verificarSituacionAdministrativa(socio: Socio): boolean
+    + confirmarReserva(reserva: Reserva): void
+    + cancelarReserva(reserva: Reserva): void
+    + consultarReservasPorSocio(socio: Socio): Reserva[]
+    + consultarReservasPorRecursoYFecha(recurso: Recurso, fecha: Date): Reserva[]
+    + generarInformeReservasDelDia(fecha: Date): String
+    - enviarEmailConfirmacion(reserva: Reserva): void
+}
+
+note right of Club: registrarReserva() genera el número\nde reserva, la almacena y llama a\nenviarEmailConfirmacion() para notificar\nal socio con los datos de la reserva.
+
+Club "1" -- "0..*" Socio : registra >
+Club "1" -- "0..*" Recurso : administra >
+Club "1" -- "0..*" CategoriaSocio : administra >
+Club "1" -- "0..*" Reserva : gestiona >
 Socio "1" -- "0..*" Reserva : realiza >
-Recurso "1" -- "0..*" Reserva : es reservado en >
 CategoriaSocio "1" -- "0..*" Socio : clasifica >
+Recurso "1" -- "0..*" Reserva : es reservado en >
 Reserva "1" -- "1..*" Pago : registra >
-
-Socio -- SituacionAdministrativa
-CategoriaSocio -- NombreCategoria
-Recurso -- TipoRecurso
-Recurso -- EstadoOperativo
-Reserva -- EstadoReserva
-Reserva -- MedioDePago
-Pago -- MedioDePago
 
 @enduml
