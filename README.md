@@ -1,3 +1,8 @@
+# Integrantes del grupo:
+
+- **Delfina Ciccale**
+- **Helena Cusworth**
+
 # Sistema de Reservas: Club Social "Los Álamos"
 
 Sistema para administrar la reserva de instalaciones y servicios del club (quinchos, salones, canchas, parrillas, etc.) por parte de sus socios.
