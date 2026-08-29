@@ -12,8 +12,6 @@ abstract class Socio {
     - situacionAdministrativa: String
     --
     + puedeReservar(): boolean
-    + {abstract} calcularImporteFinal(precioBaseTotal: double): double
-    + {abstract} getPorcentajeAjuste(): double
     + getNumeroSocio(): int
     + getNombre(): String
     + getApellido(): String
