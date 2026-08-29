@@ -1,7 +1,7 @@
-@startuml diagrama-clases-los-alamos
+@startuml
 skinparam classAttributeIconSize 0
 
-class Socio {
+abstract class Socio {
     - numeroSocio: int
     - nombre: String
     - apellido: String
@@ -12,6 +12,8 @@ class Socio {
     - situacionAdministrativa: String
     --
     + puedeReservar(): boolean
+    + {abstract} calcularImporteFinal(precioBaseTotal: double): double
+    + {abstract} getPorcentajeAjuste(): double
     + getNumeroSocio(): int
     + getNombre(): String
     + getApellido(): String
@@ -24,16 +26,29 @@ class Socio {
 
 note left of Socio: situacionAdministrativa\npuede tomar los valores\n"habilitado", "suspendido",\n"dadodebaja" y "moroso".
 
-class CategoriaSocio {
-    - nombre: String
-    - porcentajeAjuste: double
+class SocioActivo extends Socio {
+    - {static} porcentajeDescuentoRecargo: double = 0.0
     --
-    + calcularAjuste(importe: double): double
-    + getNombre(): String
+    + {static} setPorcentajeDescuentoRecargo(porcentaje: double): void
+    + calcularImporteFinal(precioBaseTotal: double): double
     + getPorcentajeAjuste(): double
 }
 
-note right of CategoriaSocio: nombre puede tomar\nlos valores "activo",\n"vitalicio" y "adherente".
+class SocioVitalicio extends Socio {
+    - {static} porcentajeDescuento: double
+    --
+    + {static} setPorcentajeDescuento(porcentaje: double): void
+    + calcularImporteFinal(precioBaseTotal: double): double
+    + getPorcentajeAjuste(): double
+}
+
+class SocioAdherente extends Socio {
+    - {static} porcentajeRecargo: double
+    --
+    + {static} setPorcentajeRecargo(porcentaje: double): void
+    + calcularImporteFinal(precioBaseTotal: double): double
+    + getPorcentajeAjuste(): double
+}
 
 abstract class Recurso {
     - codigo: String
@@ -170,8 +185,9 @@ class Club {
     --
     + registrarSocio(socio: Socio): void
     + registrarRecurso(recurso: Recurso): void
-    + administrarCategoria(categoria: CategoriaSocio): void
-    + configurarAjusteCategoria(categoria: CategoriaSocio, porcentaje: double): void
+    + configurarAjusteCategoriaSocioActivo(porcentaje: double): void
+    + configurarAjusteCategoriaSocioVitalicio(porcentaje: double): void
+    + configurarAjusteCategoriaSocioAdherente(porcentaje: double): void
     + registrarReserva(reserva: Reserva): void
     + verificarSituacionAdministrativa(socio: Socio): boolean
     + confirmarReserva(reserva: Reserva): void
@@ -186,11 +202,8 @@ note right of Club: registrarReserva() genera el número\nde reserva, la almacen
 
 Club "1" -- "0..*" Socio : registra >
 Club "1" -- "0..*" Recurso : administra >
-Club "1" -- "0..*" CategoriaSocio : administra >
 Club "1" -- "0..*" Reserva : gestiona >
 Socio "1" -- "0..*" Reserva : realiza >
-CategoriaSocio "1" -- "0..*" Socio : clasifica >
 Recurso "1" -- "0..*" Reserva : es reservado en >
 Reserva "1" -- "1..*" Pago : registra >
-
 @enduml

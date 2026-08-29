@@ -17,7 +17,7 @@ Sistema para administrar la reserva de instalaciones y servicios del club (quinc
 
 ### Diagrama de clases
 
-![Diagrama de clases](https://www.plantuml.com/plantuml/proxy?src=https://raw.githubusercontent.com/h3l333/proyecto-los-alamos/main/docs/arquitectura/diagrama-clases.puml&fmt=svg&cache=fc95d329)
+![Diagrama de clases](https://www.plantuml.com/plantuml/proxy?src=https://raw.githubusercontent.com/h3l333/proyecto-los-alamos/main/docs/arquitectura/diagrama-clases.puml&fmt=svg&cache=cdb28a5a)
 
 ### Diagrama de casos de uso
 
