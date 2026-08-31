@@ -6,7 +6,7 @@ import java.util.Map;
 public class Club {
     private final Map<String, Recurso> recursos = new HashMap<>();
 
-    public void agregarRecurso(Recurso recurso) {
+    public void registrarRecurso(Recurso recurso) {
         recursos.put(recurso.getCodigo(), recurso);
     }
 }

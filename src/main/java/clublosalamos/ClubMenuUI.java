@@ -61,7 +61,7 @@ public class ClubMenuUI {
                 case 1:
                     Recurso recurso = pedirDatosRecurso();
                     if (recurso != null) {
-                        club.agregarRecurso(recurso);
+                        club.registrarRecurso(recurso);
                         System.out.println("Recurso agregado correctamente.");
                     }
                     break;
