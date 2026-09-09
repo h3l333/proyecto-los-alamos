@@ -13,7 +13,7 @@ public abstract class Socio {
     private final LocalDate fechaIngreso;
     private final String situacionAdministrativa;
 
-    protected Socio(int numeroSocio, String nombre, String apellido, String documento, String telefono,
+    public Socio(int numeroSocio, String nombre, String apellido, String documento, String telefono,
                      String correoElectronico, LocalDate fechaIngreso, String situacionAdministrativa) {
         this.numeroSocio = numeroSocio;
         this.nombre = nombre;

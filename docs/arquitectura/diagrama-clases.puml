@@ -9,7 +9,7 @@ abstract class Socio {
     - telefono: String
     - correoElectronico: String
     - fechaIngreso: Date
-    - situacionAdministrativa: String
+    - situacionAdministrativa: SituacionAdministrativa
     --
     + puedeReservar(): boolean
     + getNumeroSocio(): int
@@ -19,10 +19,9 @@ abstract class Socio {
     + getTelefono(): String
     + getCorreoElectronico(): String
     + getFechaIngreso(): Date
-    + getSituacionAdministrativa(): String
+    + getSituacionAdministrativa(): SituacionAdministrativa
+    + cambiarSituacionAdministrativa(nueva: SituacionAdministrativa): void
 }
-
-note left of Socio: situacionAdministrativa\npuede tomar los valores\n"habilitado", "suspendido",\n"dadodebaja" y "moroso".
 
 class SocioActivo extends Socio {
     - {static} porcentajeDescuentoRecargo: double = 0.0
@@ -34,10 +33,12 @@ class SocioActivo extends Socio {
 
 class SocioVitalicio extends Socio {
     - {static} porcentajeDescuento: double
+    - vitalicioDesde: DateTime
     --
     + {static} setPorcentajeDescuento(porcentaje: double): void
     + calcularImporteFinal(precioBaseTotal: double): double
     + getPorcentajeAjuste(): double
+    + getVitalicioDesde() : DateTime
 }
 
 class SocioAdherente extends Socio {
@@ -46,6 +47,24 @@ class SocioAdherente extends Socio {
     + {static} setPorcentajeRecargo(porcentaje: double): void
     + calcularImporteFinal(precioBaseTotal: double): double
     + getPorcentajeAjuste(): double
+}
+
+abstract class EstadoPago {
+    --
+    + getNombre(): String
+    + puedeCancelarse(): boolean
+}
+
+class Pendiente extends EstadoPago {
+}
+
+class Aprobado extends EstadoPago {
+}
+
+class Rechazado extends EstadoPago {
+}
+
+class Cancelado extends EstadoPago {
 }
 
 abstract class Recurso {
@@ -111,7 +130,7 @@ class Reserva {
     - importeTotal: double
     - importeAbonado: double
     - saldoPendiente: double
-    - estado: String
+    - estado: EstadoReserva
     --
     + calcularImporteTotal(): double
     + confirmar(): void
@@ -125,10 +144,28 @@ class Reserva {
     + getImporteTotal(): double
     + getImporteAbonado(): double
     + getSaldoPendiente(): double
-    + getEstado(): String
+    + getEstado(): EstadoReserva
+    + cambiarEstado(nuevo: EstadoReserva): void
 }
 
-note left of Reserva: estado puede tomar los siguientes valores:\n- "pagoparcial"\n- "confirmada"\n- "cancelada"\n- "finalizada"
+abstract class EstadoReserva {
+    --
+    + getNombre(): String
+    + puedeCancelarse(): boolean
+}
+
+class PagoParcial extends EstadoReserva {
+}
+
+class Confirmada extends EstadoReserva {
+}
+
+class Cancelada extends EstadoReserva {
+}
+
+class Finalizada extends EstadoReserva {
+}
+
 note right of Reserva: el medio de pago utilizado\nse obtiene del tipo concreto\nde Pago asociado (PagoCredito,\nPagoDebito o PagoBilleteraVirtual),\nno se duplica como atributo.
 
 abstract class Pago {
@@ -136,17 +173,17 @@ abstract class Pago {
     - monto: double
     - fechaHora: DateTime
     - codigoAutorizacion: String
-    - estado: String
+    - estado: EstadoPago
     --
     + getFechaHora(): DateTime
     + procesarPago(): boolean
     + getIdPago(): String
     + getMonto(): double
     + getCodigoAutorizacion(): String
-    + getEstado(): String
+    + getEstado(): EstadoPago
+    + cambiarEstado(nuevo: EstadoPago): void
 }
 
-note right of Pago: estado puede tomar\nlos valores "pendiente", "rechazado",\n"aprobado" y "cancelado".
 note left of Pago: codigoAutorizacion\n representa al código que\nretorna la pasarela de pagos\nal aprobar la operación.
 
 class PagoCredito extends Pago {
@@ -196,12 +233,33 @@ class Club {
     - enviarEmailConfirmacion(reserva: Reserva): void
 }
 
+abstract class SituacionAdministrativa {
+    --
+    + puedeReservar(): boolean
+    + getNombre(): String
+}
+
+class Habilitado extends SituacionAdministrativa {
+}
+
+class Suspendido extends SituacionAdministrativa {
+}
+
+class DadoDeBaja extends SituacionAdministrativa {
+}
+
+class Moroso extends SituacionAdministrativa {
+}
+
 note right of Club: registrarReserva() genera el número\nde reserva, la almacena y llama a\nenviarEmailConfirmacion() para notificar\nal socio con los datos de la reserva.
 
 Club "1" -- "0..*" Socio : registra >
 Club "1" -- "0..*" Recurso : administra >
 Club "1" -- "0..*" Reserva : gestiona >
+Pago "1" -- "1" EstadoPago : tiene >
 Socio "1" -- "0..*" Reserva : realiza >
+Socio "1" -- "1" SituacionAdministrativa : tiene >
 Recurso "1" -- "0..*" Reserva : es reservado en >
 Reserva "1" -- "1..*" Pago : registra >
+Reserva "1" -- "1" EstadoReserva : tiene >
 @enduml

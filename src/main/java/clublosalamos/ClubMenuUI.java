@@ -50,7 +50,7 @@ public class ClubMenuUI {
             // Error de tiempo de ejecución arrojado por la clase Scanner cuando el dato leido de un archivo o buffer
             // no esta en el formato esperado.
             input.nextLine();
-            System.out.println("Dato ingresado en formato incorrecto");
+            System.out.println("Dato ingresado en formato incorrecto.");
             return -1;
         }
     }
