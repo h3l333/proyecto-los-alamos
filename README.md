@@ -26,4 +26,4 @@ Sistema para administrar la reserva de instalaciones y servicios del club (quinc
 
 ### Diagrama de casos de uso
 
-![Diagrama de casos de uso](https://www.plantuml.com/plantuml/proxy?src=https://raw.githubusercontent.com/h3l333/proyecto-los-alamos/main/docs/casos-de-uso/diagrama-casos-uso.puml&fmt=svg&cache=69bf7e38)
+![Diagrama de casos de uso](https://www.plantuml.com/plantuml/proxy?src=https://raw.githubusercontent.com/h3l333/proyecto-los-alamos/main/docs/casos-de-uso/diagrama-casos-uso.puml&fmt=svg&cache=69cc299b)

@@ -5,6 +5,7 @@ skinparam packageStyle rectangle
 
 actor Socio
 actor Administrador as Admin
+actor Tiempo
 
 rectangle "Sistema de Reservas - Los Álamos" {
     usecase "Registrar socio" as CU1
@@ -21,6 +22,11 @@ rectangle "Sistema de Reservas - Los Álamos" {
     usecase "Consultar reservas por socio" as CU8
     usecase "Consultar reservas por\nrecurso y fecha" as CU9
     usecase "Generar informe diario\nde reservas" as CU10
+    usecase "Consultar socio" as CU11
+    usecase "Consultar categorías" as CU12
+    usecase "Consultar recurso" as CU13
+    usecase "Consultar informe" as CU14
+    usecase "Generar Informe" as CU15
 }
 
 ' Alias como "Admin", "CU1" y "CU5a" sirven de identificadores internos
@@ -31,6 +37,7 @@ Socio -- CU5
 Socio -- CU6
 Socio -- CU7
 Socio -- CU8
+Socio -- CU13
 
 Admin -- CU1
 Admin -- CU2
@@ -39,6 +46,12 @@ Admin -- CU4
 Admin -- CU7
 Admin -- CU9
 Admin -- CU10
+Admin -- CU11
+Admin -- CU12
+Admin -- CU13
+Admin -- CU14
+
+Tiempo -- CU15
 
 CU5 ..> CU5a : <<include>>
 CU5 ..> CU5b : <<include>>
