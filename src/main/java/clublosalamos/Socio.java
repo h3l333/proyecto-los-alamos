@@ -3,7 +3,7 @@ package clublosalamos;
 import java.time.LocalDate;
 
 // Implementación pendiente de aprobación final del profesor en el diagrama de casos de uso.
-public abstract class Socio {
+public class Socio {
     private final int numeroSocio;
     private final String nombre;
     private final String apellido;
@@ -11,10 +11,12 @@ public abstract class Socio {
     private final String telefono;
     private final String correoElectronico;
     private final LocalDate fechaIngreso;
-    private final String situacionAdministrativa;
+    private final SituacionAdmin situacionAdministrativa;
+    private TipoSocio tipo;
 
     public Socio(int numeroSocio, String nombre, String apellido, String documento, String telefono,
-                     String correoElectronico, LocalDate fechaIngreso, String situacionAdministrativa) {
+                    String correoElectronico, LocalDate fechaIngreso, SituacionAdmin situacionAdministrativa,
+                    TipoSocio tipo) {
         this.numeroSocio = numeroSocio;
         this.nombre = nombre;
         this.apellido = apellido;
@@ -23,6 +25,7 @@ public abstract class Socio {
         this.correoElectronico = correoElectronico;
         this.fechaIngreso = fechaIngreso;
         this.situacionAdministrativa = situacionAdministrativa;
+        this.tipo = tipo;
     }
 
     public boolean puedeReservar() {
@@ -57,7 +60,15 @@ public abstract class Socio {
         return fechaIngreso;
     }
 
-    public String getSituacionAdministrativa() {
+    public TipoSocio getTipoSocio() {
+        return tipo;
+    }
+
+    public SituacionAdmin getSituacionAdministrativa() {
         return situacionAdministrativa;
+    }
+
+    public void setSituacionAdmin(SituacionAdmin situacionAdministrativa) {
+        this.situacionAdministrativa = situacionAdministrativa;
     }
 }
