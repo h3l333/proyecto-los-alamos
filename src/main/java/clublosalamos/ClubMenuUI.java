@@ -65,6 +65,9 @@ public class ClubMenuUI {
                         System.out.println("Recurso agregado correctamente.");
                     }
                     break;
+                case 0:
+                    System.exit(0);
+                    break;
                 default:
                     System.out.println("Opcion invalida");
             }
