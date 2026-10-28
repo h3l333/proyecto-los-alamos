@@ -12,6 +12,21 @@ Sistema para administrar la reserva de instalaciones y servicios del club (quinc
 - **Lenguaje:** Java
 - **IDE:** Eclipse
 
+## Requisitos
+
+- JDK 17 o superior
+- Eclipse IDE for Java Developers (que incluye soporte para Maven)
+
+## Ejecución en Eclipse
+
+1. File -> Import -> Maven -> Existing Maven Projects.
+2. En Root Directory, seleccionar la carpeta raíz del proyecto y presionar Finish.
+3. Abrir `src/main/java/clublosalamos/Main.java`.
+4. Clic derecho -> Run As -> Java Application.
+5. Interactuar con el menú desde la pestaña Console.
+
+Si Eclipse marca error de versión de Java: clic derecho sobre el proyecto -> Properties -> Java Compiler y configurar el nivel de compatibilidad en 17 o superior.
+
 ## Documentación
 
 - [`docs/descripcion-textual.md`](docs/descripcion-textual.md) - enunciado del sistema
