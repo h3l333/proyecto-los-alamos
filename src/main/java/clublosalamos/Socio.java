@@ -2,6 +2,22 @@ package clublosalamos;
 
 import java.time.LocalDate;
 
+/**
+ * ============================================================================
+ * CARTA CRC
+ * ============================================================================
+ * Nombre de la clase: Socio
+ *
+ * Responsabilidades:
+ * 1. Guarda los datos personales y administrativos de un socio del club.
+ * 2. Indica si el socio puede realizar reservas según su situación
+ *   administrativa.
+ * 3. Permite modificar su situación administrativa.
+ *
+ * Colaboradores:
+ * - SituacionAdmin: Socio le consulta si puede reservar.
+ * ============================================================================
+ */
 // Implementación pendiente de aprobación final del profesor en el diagrama de casos de uso.
 public class Socio {
     private final int numeroSocio;
@@ -11,12 +27,12 @@ public class Socio {
     private final String telefono;
     private final String correoElectronico;
     private final LocalDate fechaIngreso;
-    private final SituacionAdmin situacionAdministrativa;
-    private TipoSocio tipo;
+    private SituacionAdmin situacionAdministrativa;
+    // private TipoSocio tipo;
 
     public Socio(int numeroSocio, String nombre, String apellido, String documento, String telefono,
-                    String correoElectronico, LocalDate fechaIngreso, SituacionAdmin situacionAdministrativa,
-                    TipoSocio tipo) {
+                    String correoElectronico, LocalDate fechaIngreso, SituacionAdmin situacionAdministrativa // ,
+                    /*TipoSocio tipo*/) {
         this.numeroSocio = numeroSocio;
         this.nombre = nombre;
         this.apellido = apellido;
@@ -25,11 +41,11 @@ public class Socio {
         this.correoElectronico = correoElectronico;
         this.fechaIngreso = fechaIngreso;
         this.situacionAdministrativa = situacionAdministrativa;
-        this.tipo = tipo;
+        // this.tipo = tipo;
     }
 
     public boolean puedeReservar() {
-        return situacionAdministrativa.equals("habilitado");
+        return situacionAdministrativa.puedeReservar();
     }
 
     public int getNumeroSocio() {
@@ -60,9 +76,9 @@ public class Socio {
         return fechaIngreso;
     }
 
-    public TipoSocio getTipoSocio() {
+    /*public TipoSocio getTipoSocio() {
         return tipo;
-    }
+    }*/
 
     public SituacionAdmin getSituacionAdministrativa() {
         return situacionAdministrativa;
