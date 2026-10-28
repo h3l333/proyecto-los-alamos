@@ -1,5 +1,18 @@
 package clublosalamos;
 
+/**
+ * ============================================================================
+ * CARTA CRC
+ * ============================================================================
+ * Nombre de la clase: Cancha
+ *
+ * Responsabilidades:
+ * 1. Retorna los datos asociados a un recurso de tipo `Cancha`.
+ *
+ * Colaboradores:
+ * - Recurso: Sucede por herencia.
+ * ============================================================================
+ */
 public class Cancha extends Recurso {
     private final String tipoDeporte;
     private final boolean tieneIluminacion;

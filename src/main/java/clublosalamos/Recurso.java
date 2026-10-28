@@ -3,6 +3,21 @@ package clublosalamos;
 import java.time.LocalDate;
 import java.time.LocalTime;
 
+/**
+ * ============================================================================
+ * CARTA CRC
+ * ============================================================================
+ * Nombre de la clase: Recurso
+ *
+ * Responsabilidades:
+ * 1. Guarda los datos comunes de un recurso alquilable del club.
+ * 2. Indica si el recurso está disponible para ser reservado.
+ * 3. Declara el tipo de recurso que representa cada subclase.
+ *
+ * Colaboradores:
+ * - Ninguno.
+ * ============================================================================
+ */
 public abstract class Recurso {
     private final String codigo;
     private final String descripcion;

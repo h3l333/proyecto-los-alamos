@@ -1,5 +1,18 @@
 package clublosalamos;
 
+/**
+ * ============================================================================
+ * CARTA CRC
+ * ============================================================================
+ * Nombre de la clase: Parrilla
+ *
+ * Responsabilidades:
+ * 1. Retorna los datos asociados a un recurso de tipo `Parrilla`.
+ *
+ * Colaboradores:
+ * - Recurso: Sucede por herencia.
+ * ============================================================================
+ */
 public class Parrilla extends Recurso {
     private final double capacidadKgCarne;
 

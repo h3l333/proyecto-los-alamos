@@ -1,5 +1,18 @@
 package clublosalamos;
 
+/**
+ * ============================================================================
+ * CARTA CRC
+ * ============================================================================
+ * Nombre de la clase: EspacioRecreacion
+ *
+ * Responsabilidades:
+ * 1. Retorna los datos asociados a un recurso de tipo `EspacioRecreacion`.
+ *
+ * Colaboradores:
+ * - Recurso: Sucede por herencia.
+ * ============================================================================
+ */
 public class EspacioRecreacion extends Recurso {
     private final String tipoEspacio;
 

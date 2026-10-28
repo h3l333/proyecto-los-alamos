@@ -2,6 +2,22 @@ package clublosalamos;
 
 import java.time.LocalDateTime;
 
+/**
+ * ============================================================================
+ * CARTA CRC
+ * ============================================================================
+ * Nombre de la clase: Pago
+ *
+ * Responsabilidades:
+ * 1. Guarda los datos de un pago: monto, fecha y hora, código de
+ *   autorización y estado.
+ * 2. Declara el procesamiento del pago, que implementa cada medio de pago
+ *   concreto.
+ *
+ * Colaboradores:
+ * - Ninguno.
+ * ============================================================================
+ */
 public abstract class Pago {
     private final String idPago;
     private final double monto;

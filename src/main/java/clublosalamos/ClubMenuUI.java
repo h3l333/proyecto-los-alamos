@@ -7,15 +7,15 @@ import java.util.Scanner;
  * ============================================================================
  * CARTA CRC
  * ============================================================================
- * Nombre de la clase: ClubMENUUI
- * 
- * Resposabilidades:
+ * Nombre de la clase: ClubMenuUI
+ *
+ * Responsabilidades:
  * 1. Maneja interacción con el usuario y delega responsabilidad de lógica del
  *   negocio a la clase Club.
- * 
+ *
  * Colaboradores:
  * - Club: Club gestiona las interacciones entre los objetos representativos
- *   dominio.
+ *   del dominio.
  * ============================================================================
  */
 public class ClubMenuUI {

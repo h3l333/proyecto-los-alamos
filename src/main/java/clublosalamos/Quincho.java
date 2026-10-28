@@ -1,5 +1,18 @@
 package clublosalamos;
 
+/**
+ * ============================================================================
+ * CARTA CRC
+ * ============================================================================
+ * Nombre de la clase: Quincho
+ *
+ * Responsabilidades:
+ * 1. Retorna los datos asociados a un recurso de tipo `Quincho`.
+ *
+ * Colaboradores:
+ * - Recurso: Sucede por herencia.
+ * ============================================================================
+ */
 public class Quincho extends Recurso {
     private final boolean esCerrado;
     private final boolean tieneFreezer;

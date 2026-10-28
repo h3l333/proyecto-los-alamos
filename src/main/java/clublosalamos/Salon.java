@@ -1,5 +1,18 @@
 package clublosalamos;
 
+/**
+ * ============================================================================
+ * CARTA CRC
+ * ============================================================================
+ * Nombre de la clase: Salon
+ *
+ * Responsabilidades:
+ * 1. Retorna los datos asociados a un recurso de tipo `Salon`.
+ *
+ * Colaboradores:
+ * - Recurso: Sucede por herencia.
+ * ============================================================================
+ */
 public class Salon extends Recurso {
     private final boolean tieneAireAcondicionado;
     private final boolean poseeEscenario;

@@ -6,6 +6,24 @@ import java.time.LocalTime;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * ============================================================================
+ * CARTA CRC
+ * ============================================================================
+ * Nombre de la clase: Reserva
+ *
+ * Responsabilidades:
+ * 1. Guarda los datos de una reserva de un recurso realizada por un socio.
+ * 2. Calcula el importe total y registra los pagos, actualizando el
+ *   importe abonado y el saldo pendiente.
+ * 3. Gestiona el estado de la reserva: la confirma, cancela y finaliza.
+ *
+ * Colaboradores:
+ * - Socio: Es el socio solicitante de la reserva.
+ * - Recurso: Es el recurso reservado y provee su precio base por hora.
+ * - Pago: Reserva registra los pagos realizados.
+ * ============================================================================
+ */
 public class Reserva {
     private final String numeroReserva;
     private final LocalDateTime fechaCreacion;
