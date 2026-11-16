@@ -1,0 +1,27 @@
+package clublosalamos;
+
+/**
+ * ============================================================================
+ * CARTA CRC
+ * ============================================================================
+ * Nombre de la clase: Adherente
+ *
+ * Responsabilidades:
+ * 1. Provee acceso a la instancia única en el sistema de la clase Adherente,
+ *   categoría de socio que tiene un recargo en las reservas.
+ *
+ * Colaboradores:
+ * - TipoSocio: Sucede por herencia.
+ * ============================================================================
+ */
+public class Adherente extends TipoSocio {
+    private static final Adherente INSTANCIA = new Adherente();
+
+    private Adherente() {
+        super("Adherente", 0.2);
+    }
+
+    public static Adherente getInstancia() {
+        return INSTANCIA;
+    }
+}
