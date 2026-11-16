@@ -53,7 +53,7 @@ public class Reserva {
     }
 
     public double calcularImporteTotal() {
-        return recurso.getPrecioBaseHora() * duracionHoras;
+        return socio.getTipoSocio().aplicarAjuste(recurso.getPrecioBaseHora() * duracionHoras);
     }
 
     public void registrarPago(Pago pago) {
