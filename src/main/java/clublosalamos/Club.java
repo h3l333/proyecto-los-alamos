@@ -156,4 +156,12 @@ public class Club {
         }
         return false;
     }
+
+    public void darSocioDeBaja(int numeroSocio) {
+        Socio socio = socios.get(numeroSocio);
+        if (socio == null) {
+            throw new IllegalArgumentException("El socio " + numeroSocio + " no está registrado");
+        }
+        socio.setSituacionAdmin(DadoDeBaja.getInstancia());
+    }
 }
