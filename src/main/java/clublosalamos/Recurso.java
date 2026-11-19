@@ -1,5 +1,6 @@
 package clublosalamos;
 
+import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.LocalTime;
 
@@ -22,10 +23,10 @@ public abstract class Recurso {
     private final String codigo;
     private final String descripcion;
     private final int capacidadMaxima;
-    private final double precioBaseHora;
+    private final BigDecimal precioBaseHora;
     private final boolean habilitado;
 
-    protected Recurso(String codigo, String descripcion, int capacidadMaxima, double precioBaseHora, boolean habilitado) {
+    protected Recurso(String codigo, String descripcion, int capacidadMaxima, BigDecimal precioBaseHora, boolean habilitado) {
         this.codigo = codigo;
         this.descripcion = descripcion;
         this.capacidadMaxima = capacidadMaxima;
@@ -51,7 +52,7 @@ public abstract class Recurso {
         return capacidadMaxima;
     }
 
-    public double getPrecioBaseHora() {
+    public BigDecimal getPrecioBaseHora() {
         return precioBaseHora;
     }
 

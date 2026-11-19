@@ -1,5 +1,7 @@
 package clublosalamos;
 
+import java.math.BigDecimal;
+
 /**
  * ============================================================================
  * CARTA CRC
@@ -18,7 +20,7 @@ public class Activo extends TipoSocio {
     private static final Activo INSTANCIA = new Activo();
 
     private Activo() {
-        super("Activo", 0.0);
+        super("Activo", BigDecimal.ZERO);
     }
 
     public static Activo getInstancia() {

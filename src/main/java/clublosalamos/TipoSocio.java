@@ -1,5 +1,7 @@
 package clublosalamos;
 
+import java.math.BigDecimal;
+
 /**
  * ============================================================================
  * CARTA CRC
@@ -15,22 +17,30 @@ package clublosalamos;
  * Colaboradores:
  * - Socio: Socio la conoce como su categoría.
  * - Reserva: Reserva la consulta para calcular el importe final.
+ * - Club: Club modifica su porcentaje de ajuste.
  * ============================================================================
  */
 public abstract class TipoSocio {
     private final String descripcion;
-    private double porcentajeAjuste; // negativo = descuento, positivo = recargo
+    private BigDecimal porcentajeAjuste; // fracción: negativo = descuento, positivo = recargo (0.2 = 20%)
 
-    protected TipoSocio(String descripcion, double porcentajeAjuste) {
+    protected TipoSocio(String descripcion, BigDecimal porcentajeAjuste) {
         this.descripcion = descripcion;
         this.porcentajeAjuste = porcentajeAjuste;
     }
 
     public String getDescripcion() { return descripcion; }
-    public double getPorcentajeAjuste() { return porcentajeAjuste; }
-    public void setPorcentajeAjuste(double p) { this.porcentajeAjuste = p; }
+    public BigDecimal getPorcentajeAjuste() { return porcentajeAjuste; }
+    public void setPorcentajeAjuste(BigDecimal p) {
+        if (p.compareTo(BigDecimal.ONE.negate()) <= 0) {
+            throw new IllegalArgumentException("El descuento no puede ser del 100% o más");
+        }
+        this.porcentajeAjuste = p;
+    }
 
-    public double aplicarAjuste(double importe) {
-        return importe * (1 + porcentajeAjuste);
+    // El resultado se redondea a centavos para que el importe sea siempre exacto.
+    public BigDecimal aplicarAjuste(BigDecimal importe) {
+        return importe.multiply(BigDecimal.ONE.add(porcentajeAjuste))
+                .setScale(Reserva.ESCALA_IMPORTE, Reserva.REDONDEO_IMPORTE);
     }
 }

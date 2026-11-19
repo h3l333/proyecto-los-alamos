@@ -1,5 +1,7 @@
 package clublosalamos;
 
+import java.math.BigDecimal;
+
 /**
  * ============================================================================
  * CARTA CRC
@@ -17,7 +19,7 @@ public class Cancha extends Recurso {
     private final String tipoDeporte;
     private final boolean tieneIluminacion;
 
-    public Cancha(String codigo, String descripcion, int capacidadMaxima, double precioBaseHora, boolean habilitado,
+    public Cancha(String codigo, String descripcion, int capacidadMaxima, BigDecimal precioBaseHora, boolean habilitado,
                   String tipoDeporte, boolean tieneIluminacion) {
         super(codigo, descripcion, capacidadMaxima, precioBaseHora, habilitado);
         this.tipoDeporte = tipoDeporte;

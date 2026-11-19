@@ -1,5 +1,7 @@
 package clublosalamos;
 
+import java.math.BigDecimal;
+
 /**
  * ============================================================================
  * CARTA CRC
@@ -16,7 +18,7 @@ package clublosalamos;
 public class EspacioRecreacion extends Recurso {
     private final String tipoEspacio;
 
-    public EspacioRecreacion(String codigo, String descripcion, int capacidadMaxima, double precioBaseHora, boolean habilitado,
+    public EspacioRecreacion(String codigo, String descripcion, int capacidadMaxima, BigDecimal precioBaseHora, boolean habilitado,
                               String tipoEspacio) {
         super(codigo, descripcion, capacidadMaxima, precioBaseHora, habilitado);
         this.tipoEspacio = tipoEspacio;

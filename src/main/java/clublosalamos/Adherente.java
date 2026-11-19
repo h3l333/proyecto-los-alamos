@@ -1,5 +1,7 @@
 package clublosalamos;
 
+import java.math.BigDecimal;
+
 /**
  * ============================================================================
  * CARTA CRC
@@ -18,7 +20,7 @@ public class Adherente extends TipoSocio {
     private static final Adherente INSTANCIA = new Adherente();
 
     private Adherente() {
-        super("Adherente", 0.2);
+        super("Adherente", new BigDecimal("0.2"));
     }
 
     public static Adherente getInstancia() {
