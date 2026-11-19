@@ -16,6 +16,7 @@ import java.time.LocalDate;
  *
  * Colaboradores:
  * - SituacionAdmin: Socio le consulta si puede reservar.
+ * - TipoSocio: Socio lo conoce como su categoría.
  * ============================================================================
  */
 // Implementación pendiente de aprobación final del profesor en el diagrama de casos de uso.
