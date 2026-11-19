@@ -1,7 +1,13 @@
 package clublosalamos;
 
+import java.math.BigDecimal;
+import java.time.LocalDate;
+import java.time.LocalTime;
+import java.time.format.DateTimeParseException;
 import java.util.InputMismatchException;
+import java.util.List;
 import java.util.Scanner;
+import java.util.UUID;
 
 /**
  * ============================================================================
@@ -12,10 +18,18 @@ import java.util.Scanner;
  * Responsabilidades:
  * 1. Maneja interacción con el usuario y delega responsabilidad de lógica del
  *   negocio a la clase Club.
+ * 2. Captura las excepciones lanzadas por Club y muestra su mensaje al
+ *   usuario.
+ * 3. Construye los recursos, socios y pagos a partir de los datos ingresados.
  *
  * Colaboradores:
  * - Club: Club gestiona las interacciones entre los objetos representativos
  *   del dominio.
+ * - Recurso: ClubMenuUI crea sus subtipos a partir de los datos ingresados.
+ * - Socio: ClubMenuUI lo crea al registrar un socio.
+ * - Pago: ClubMenuUI crea el pago concreto según el medio elegido.
+ * - Reserva: ClubMenuUI muestra su resumen.
+ * - TipoSocio: ClubMenuUI consulta los porcentajes de cada categoría.
  * ============================================================================
  */
 public class ClubMenuUI {
@@ -32,11 +46,24 @@ public class ClubMenuUI {
     }
 
     private void mostrarMenu() {
-        System.out.println("BIENVENIDO AL CLUB LOS ALAMOS\n");
-        System.out.println("-----------------------------\n");
-        System.out.print("\nPor favor ingrese la operación que desea realizar: ");
-        System.out.print("1) Añadir un recurso\n");
-
+        System.out.println("BIENVENIDO AL CLUB LOS ALAMOS");
+        System.out.println("-----------------------------");
+        System.out.println("1) Añadir un recurso");
+        System.out.println("2) Registrar socio");
+        System.out.println("3) Dar de baja a un socio");
+        System.out.println("4) Verificar situación administrativa de un socio");
+        System.out.println("5) Registrar reserva");
+        System.out.println("6) Confirmar reserva (pago del saldo)");
+        System.out.println("7) Cancelar reserva");
+        System.out.println("8) Finalizar reserva");
+        System.out.println("9) Consultar reservas por socio");
+        System.out.println("10) Consultar reservas por recurso y fecha");
+        System.out.println("11) Administrar categorías de socio");
+        System.out.println("12) Generar informe de reservas del día");
+        System.out.println("13) Pasar un socio suspendido a moroso");
+        System.out.println("14) Suspender a un socio");
+        System.out.println("0) Salir");
+        System.out.println("Por favor ingrese la operación que desea realizar:");
     }
 
     private byte leerByte() {
@@ -65,6 +92,45 @@ public class ClubMenuUI {
                         System.out.println("Recurso agregado correctamente.");
                     }
                     break;
+                case 2:
+                    registrarSocio();
+                    break;
+                case 3:
+                    darSocioDeBaja();
+                    break;
+                case 4:
+                    verificarSituacionAdministrativa();
+                    break;
+                case 5:
+                    registrarReserva();
+                    break;
+                case 6:
+                    confirmarReserva();
+                    break;
+                case 7:
+                    cancelarReserva();
+                    break;
+                case 8:
+                    finalizarReserva();
+                    break;
+                case 9:
+                    consultarReservasPorSocio();
+                    break;
+                case 10:
+                    consultarReservasPorRecursoYFecha();
+                    break;
+                case 11:
+                    administrarCategorias();
+                    break;
+                case 12:
+                    generarInformeDelDia();
+                    break;
+                case 13:
+                    marcarSocioMoroso();
+                    break;
+                case 14:
+                    suspenderSocio();
+                    break;
                 case 0:
                     System.exit(0);
                     break;
@@ -74,61 +140,251 @@ public class ClubMenuUI {
         } catch (InputMismatchException e) {
             System.out.println("Dato ingresado en formato incorrecto");
             input.nextLine();
+        } catch (DateTimeParseException e) {
+            System.out.println(
+                "Fecha u hora ingresada en formato incorrecto. Las fechas se deben ingresar en formato aaaa-mm-dd, y las horas en formato hh:mm."
+            );
+        } catch (IllegalArgumentException | IllegalStateException e) {
+            // Excepciones de validación lanzadas por Club y el dominio.
+            System.out.println("Error: " + e.getMessage());
         }
     }
 
+    private void registrarSocio() {
+        System.out.println("Número de socio:");
+        int numeroSocio = leerInt();
+        System.out.println("Nombre:");
+        String nombre = input.nextLine();
+        System.out.println("Apellido:");
+        String apellido = input.nextLine();
+        System.out.println("Documento:");
+        String documento = input.nextLine();
+        System.out.println("Teléfono:");
+        String telefono = input.nextLine();
+        System.out.println("Correo electrónico:");
+        String correo = input.nextLine();
+        TipoSocio tipo = pedirTipoSocio();
+        club.registrarSocio(new Socio(numeroSocio, nombre, apellido, documento, telefono, correo,
+                LocalDate.now(), Habilitado.getInstancia(), tipo));
+        System.out.println("Socio registrado correctamente.");
+    }
+
+    private TipoSocio pedirTipoSocio() {
+        System.out.println("Categoría: 1) Activo  2) Adherente  3) Vitalicio");
+        System.out.println("Ingrese la categoría:");
+        switch (leerByte()) {
+            case 1:
+                return Activo.getInstancia();
+            case 2:
+                return Adherente.getInstancia();
+            case 3:
+                return SocioVitalicio.getInstancia();
+            default:
+                throw new IllegalArgumentException("Categoría inválida");
+        }
+    }
+
+    private void darSocioDeBaja() {
+        System.out.println("Número de socio:");
+        club.darSocioDeBaja(leerInt());
+        System.out.println("Socio dado de baja.");
+    }
+
+    private void suspenderSocio() {
+        System.out.println("Número de socio:");
+        club.suspenderSocio(leerInt());
+        System.out.println("Socio suspendido.");
+    }
+
+    private void marcarSocioMoroso() {
+        System.out.println("Número de socio:");
+        club.marcarSocioMoroso(leerInt());
+        System.out.println("Socio marcado como moroso.");
+    }
+
+    private void verificarSituacionAdministrativa() {
+        System.out.println("Número de socio:");
+        int numeroSocio = leerInt();
+        if (club.verificarSituacionAdministrativa(numeroSocio)) {
+            System.out.println("El socio está habilitado para reservar.");
+        } else {
+            System.out.println("El socio NO puede reservar: situación administrativa "
+                    + club.obtenerSocio(numeroSocio).getSituacionAdministrativa().getSituacionAdmin() + ".");
+        }
+    }
+
+    private void registrarReserva() {
+        System.out.println("Número de socio:");
+        int numeroSocio = leerInt();
+        System.out.println("Código del recurso:");
+        String codigoRecurso = input.nextLine();
+        System.out.println("Fecha de uso (aaaa-mm-dd):");
+        LocalDate fechaUso = LocalDate.parse(input.nextLine().trim());
+        System.out.println("Horario de inicio (hh:mm):");
+        LocalTime horarioInicio = LocalTime.parse(input.nextLine().trim());
+        System.out.println("Duración en horas:");
+        int duracionHoras = leerInt();
+
+        BigDecimal pagoInicial = club.calcularPagoInicial(numeroSocio, codigoRecurso, duracionHoras);
+        System.out.printf("Pago inicial a abonar (50%%): $%.2f%n", pagoInicial);
+        Pago pago = pedirPago(pagoInicial);
+        Reserva reserva = club.registrarReserva(numeroSocio, codigoRecurso, fechaUso, horarioInicio,
+                duracionHoras, pago);
+        System.out.println("Reserva registrada con el número " + reserva.getNumeroReserva() + ".");
+    }
+
+    private Pago pedirPago(BigDecimal monto) {
+        System.out.println("Medio de pago: 1) Tarjeta de crédito  2) Tarjeta de débito  3) Billetera virtual");
+        System.out.println("Ingrese el medio de pago:");
+        byte medio = leerByte();
+        String idPago = UUID.randomUUID().toString();
+
+        switch (medio) {
+            case 1:
+                System.out.println("Banco emisor:");
+                String bancoCredito = input.nextLine();
+                System.out.println("Cantidad de cuotas:");
+                int cuotas = leerInt();
+                return new PagoCredito(idPago, monto, bancoCredito, cuotas);
+            case 2:
+                System.out.println("Banco emisor:");
+                String bancoDebito = input.nextLine();
+                System.out.println("CBU:");
+                String cbu = input.nextLine();
+                System.out.println("Titular de la cuenta:");
+                String titular = input.nextLine();
+                return new PagoDebito(idPago, monto, bancoDebito, cbu, titular);
+            case 3:
+                System.out.println("Plataforma:");
+                String plataforma = input.nextLine();
+                System.out.println("CVU:");
+                String cvu = input.nextLine();
+                System.out.println("Alias:");
+                String alias = input.nextLine();
+                return new PagoBilleteraVirtual(idPago, monto, plataforma, cvu, alias);
+            default:
+                throw new IllegalArgumentException("Medio de pago inválido");
+        }
+    }
+
+    private void confirmarReserva() {
+        System.out.println("Número de reserva:");
+        int numeroReserva = leerInt();
+        Reserva reserva = club.obtenerReserva(numeroReserva);
+        System.out.printf("Saldo pendiente a abonar: $%.2f%n", reserva.getSaldoPendiente());
+        club.confirmarReserva(numeroReserva, pedirPago(reserva.getSaldoPendiente()));
+        System.out.println("Reserva confirmada.");
+    }
+
+    private void cancelarReserva() {
+        System.out.println("Número de reserva:");
+        club.cancelarReserva(leerInt());
+        System.out.println("Reserva cancelada.");
+    }
+
+    private void finalizarReserva() {
+        System.out.println("Número de reserva:");
+        club.finalizarReserva(leerInt());
+        System.out.println("Reserva finalizada.");
+    }
+
+    private void consultarReservasPorSocio() {
+        System.out.println("Número de socio:");
+        mostrarReservas(club.consultarReservasPorSocio(leerInt()));
+    }
+
+    private void consultarReservasPorRecursoYFecha() {
+        System.out.println("Código del recurso:");
+        String codigoRecurso = input.nextLine();
+        System.out.println("Fecha (aaaa-mm-dd):");
+        LocalDate fecha = LocalDate.parse(input.nextLine().trim());
+        mostrarReservas(club.consultarReservasPorRecursoYFecha(codigoRecurso, fecha));
+    }
+
+    private void mostrarReservas(List<Reserva> reservas) {
+        if (reservas.isEmpty()) {
+            System.out.println("No se encontraron reservas.");
+        }
+        for (Reserva reserva : reservas) {
+            System.out.println(reserva.resumen());
+        }
+    }
+
+    private void administrarCategorias() {
+        System.out.printf("Ajustes actuales: Activo %.1f%% | Adherente %.1f%% | Vitalicio %.1f%%%n",
+                Activo.getInstancia().getPorcentajeAjuste().movePointRight(2),
+                Adherente.getInstancia().getPorcentajeAjuste().movePointRight(2),
+                SocioVitalicio.getInstancia().getPorcentajeAjuste().movePointRight(2));
+        TipoSocio tipo = pedirTipoSocio();
+        System.out.println("Nuevo porcentaje (positivo = recargo, negativo = descuento):");
+        BigDecimal porcentaje = leerBigDecimal();
+        if (tipo == Activo.getInstancia()) {
+            club.configurarAjusteCategoriaSocioActivo(porcentaje);
+        } else if (tipo == Adherente.getInstancia()) {
+            club.configurarAjusteCategoriaSocioAdherente(porcentaje);
+        } else {
+            club.configurarAjusteCategoriaSocioVitalicio(porcentaje);
+        }
+        System.out.println("Porcentaje actualizado correctamente.");
+    }
+
+    private void generarInformeDelDia() {
+        System.out.println("Fecha (aaaa-mm-dd):");
+        System.out.println(club.generarInformeReservasDelDia(LocalDate.parse(input.nextLine().trim())));
+    }
+
     private Recurso pedirDatosRecurso() {
-        System.out.println("\nTipo de recurso:");
+        System.out.println("Tipo de recurso:");
         System.out.println("1) Quincho");
         System.out.println("2) Salon");
         System.out.println("3) Cancha");
         System.out.println("4) Parrilla");
         System.out.println("5) Espacio de recreacion");
-        System.out.print("Ingrese el tipo: ");
+        System.out.println("Ingrese el tipo:");
         byte tipo = leerByte();
 
-        System.out.print("Codigo: ");
+        System.out.println("Codigo:");
         String codigo = input.nextLine();
-        System.out.print("Descripcion: ");
+        System.out.println("Descripcion:");
         String descripcion = input.nextLine();
-        System.out.print("Capacidad maxima: ");
+        System.out.println("Capacidad maxima:");
         int capacidadMaxima = leerInt();
-        System.out.print("Precio base por hora: ");
-        double precioBaseHora = leerDouble();
-        System.out.print("Habilitado (s/n): ");
+        System.out.println("Precio base por hora:");
+        BigDecimal precioBaseHora = leerBigDecimal();
+        System.out.println("Habilitado (s/n):");
         boolean habilitado = leerBooleano();
 
         switch (tipo) {
             case 1:
-                System.out.print("Es cerrado (s/n): ");
+                System.out.println("Es cerrado (s/n):");
                 boolean esCerrado = leerBooleano();
-                System.out.print("Tiene freezer (s/n): ");
+                System.out.println("Tiene freezer (s/n):");
                 boolean tieneFreezer = leerBooleano();
-                System.out.print("Cantidad de mesas: ");
+                System.out.println("Cantidad de mesas:");
                 int cantidadMesas = leerInt();
                 return new Quincho(codigo, descripcion, capacidadMaxima, precioBaseHora, habilitado,
                         esCerrado, tieneFreezer, cantidadMesas);
             case 2:
-                System.out.print("Tiene aire acondicionado (s/n): ");
+                System.out.println("Tiene aire acondicionado (s/n):");
                 boolean tieneAireAcondicionado = leerBooleano();
-                System.out.print("Posee escenario (s/n): ");
+                System.out.println("Posee escenario (s/n):");
                 boolean poseeEscenario = leerBooleano();
                 return new Salon(codigo, descripcion, capacidadMaxima, precioBaseHora, habilitado,
                         tieneAireAcondicionado, poseeEscenario);
             case 3:
-                System.out.print("Tipo de deporte: ");
+                System.out.println("Tipo de deporte:");
                 String tipoDeporte = input.nextLine();
-                System.out.print("Tiene iluminacion (s/n): ");
+                System.out.println("Tiene iluminacion (s/n):");
                 boolean tieneIluminacion = leerBooleano();
                 return new Cancha(codigo, descripcion, capacidadMaxima, precioBaseHora, habilitado,
                         tipoDeporte, tieneIluminacion);
             case 4:
-                System.out.print("Capacidad en kg de carne: ");
+                System.out.println("Capacidad en kg de carne:");
                 double capacidadKgCarne = leerDouble();
                 return new Parrilla(codigo, descripcion, capacidadMaxima, precioBaseHora, habilitado,
                         capacidadKgCarne);
             case 5:
-                System.out.print("Tipo de espacio: ");
+                System.out.println("Tipo de espacio:");
                 String tipoEspacio = input.nextLine();
                 return new EspacioRecreacion(codigo, descripcion, capacidadMaxima, precioBaseHora, habilitado,
                         tipoEspacio);
@@ -159,6 +415,18 @@ public class ClubMenuUI {
             input.nextLine();
             System.out.println("Dato ingresado en formato incorrecto");
             return -1;
+        }
+    }
+
+    private BigDecimal leerBigDecimal() {
+        try {
+            BigDecimal valor = input.nextBigDecimal();
+            input.nextLine();
+            return valor;
+        } catch (InputMismatchException e) {
+            input.nextLine();
+            System.out.println("Dato ingresado en formato incorrecto");
+            return BigDecimal.ONE.negate();
         }
     }
 
