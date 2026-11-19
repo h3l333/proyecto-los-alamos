@@ -19,6 +19,11 @@ rectangle "Sistema de Reservas - Los Álamos" {
     usecase "Realizar pago" as CU5d
     usecase "Confirmar reserva" as CU6
     usecase "Cancelar reserva" as CU7
+    usecase "Finalizar reserva" as CU7a
+    usecase "Dar de baja socio" as CU1a
+    usecase "Suspender socio" as CU1c
+    usecase "Pasar socio suspendido
+a moroso" as CU1b
     usecase "Consultar reservas por socio" as CU8
     usecase "Consultar reservas por\nrecurso y fecha" as CU9
     usecase "Generar informe diario\nde reservas" as CU10
@@ -40,6 +45,10 @@ Socio -- CU8
 Socio -- CU13
 
 Admin -- CU1
+Admin -- CU1a
+Admin -- CU1b
+Admin -- CU1c
+Admin -- CU7a
 Admin -- CU2
 Admin -- CU3
 Admin -- CU4
