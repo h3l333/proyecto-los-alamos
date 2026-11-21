@@ -41,4 +41,4 @@ Si Eclipse marca error de versión de Java: clic derecho sobre el proyecto -> Pr
 
 ### Diagrama de casos de uso
 
-![Diagrama de casos de uso](https://www.plantuml.com/plantuml/proxy?src=https://raw.githubusercontent.com/h3l333/proyecto-los-alamos/main/docs/casos-de-uso/diagrama-casos-uso.puml&fmt=svg&cache=6b40a80f)
+![Diagrama de casos de uso](https://www.plantuml.com/plantuml/proxy?src=https://raw.githubusercontent.com/h3l333/proyecto-los-alamos/main/docs/casos-de-uso/diagrama-casos-uso.puml&fmt=svg&cache=67a108e7)
