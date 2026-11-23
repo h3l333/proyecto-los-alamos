@@ -29,7 +29,8 @@ import java.util.Map;
  * 5. Consulta reservas por socio y por recurso y fecha, y genera el informe
  *   de reservas de un día.
  * 6. Verifica la situación administrativa de un socio, lo da de baja,
- *   suspende a un socio habilitado y pasa a moroso a un socio suspendido.
+ *   suspende a un socio habilitado, pasa a moroso a un socio suspendido y
+ *   habilita a un socio suspendido o moroso.
  * 7. Configura los porcentajes de descuento o recargo de cada categoría de
  *   socio.
  *
@@ -208,6 +209,16 @@ public class Club {
             throw new IllegalStateException("Solo un socio suspendido puede pasar a moroso");
         }
         socio.setSituacionAdmin(Moroso.getInstancia());
+    }
+
+    // Solo un socio suspendido o moroso puede volver a ser habilitado.
+    public void habilitarSocio(int numeroSocio) {
+        Socio socio = obtenerSocio(numeroSocio);
+        SituacionAdmin situacion = socio.getSituacionAdministrativa();
+        if (situacion != Suspendido.getInstancia() && situacion != Moroso.getInstancia()) {
+            throw new IllegalStateException("Solo un socio suspendido o moroso puede ser habilitado");
+        }
+        socio.setSituacionAdmin(Habilitado.getInstancia());
     }
 
     // Los porcentajes se expresan en puntos porcentuales: positivo = recargo, negativo = descuento.

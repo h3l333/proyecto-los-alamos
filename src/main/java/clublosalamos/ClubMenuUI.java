@@ -62,6 +62,7 @@ public class ClubMenuUI {
         System.out.println("12) Generar informe de reservas del día");
         System.out.println("13) Pasar un socio suspendido a moroso");
         System.out.println("14) Suspender a un socio");
+        System.out.println("15) Habilitar a un socio suspendido o moroso");
         System.out.println("0) Salir");
         System.out.println("Por favor ingrese la operación que desea realizar:");
     }
@@ -130,6 +131,9 @@ public class ClubMenuUI {
                     break;
                 case 14:
                     suspenderSocio();
+                    break;
+                case 15:
+                    habilitarSocio();
                     break;
                 case 0:
                     System.exit(0);
@@ -200,6 +204,12 @@ public class ClubMenuUI {
         System.out.println("Número de socio:");
         club.marcarSocioMoroso(leerInt());
         System.out.println("Socio marcado como moroso.");
+    }
+
+    private void habilitarSocio() {
+        System.out.println("Número de socio:");
+        club.habilitarSocio(leerInt());
+        System.out.println("Socio habilitado.");
     }
 
     private void verificarSituacionAdministrativa() {

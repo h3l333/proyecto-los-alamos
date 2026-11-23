@@ -211,6 +211,7 @@ class Club {
     + darSocioDeBaja(numeroSocio: int): void
     + suspenderSocio(numeroSocio: int): void
     + marcarSocioMoroso(numeroSocio: int): void
+    + habilitarSocio(numeroSocio: int): void
     + registrarRecurso(recurso: Recurso): void
     + configurarAjusteCategoriaSocioActivo(porcentaje: BigDecimal): void
     + configurarAjusteCategoriaSocioVitalicio(porcentaje: BigDecimal): void

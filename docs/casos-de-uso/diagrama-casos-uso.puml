@@ -23,6 +23,7 @@ rectangle "Sistema de Reservas - Los Álamos" {
     usecase "Dar de baja socio" as CU1a
     usecase "Suspender socio" as CU1c
     usecase "Pasar socio suspendido\na moroso" as CU1b
+    usecase "Habilitar socio" as CU1d
     usecase "Consultar reservas por socio" as CU8
     usecase "Consultar reservas por\nrecurso y fecha" as CU9
     usecase "Generar informe diario\nde reservas" as CU10
@@ -47,6 +48,7 @@ Admin -- CU1
 Admin -- CU1a
 Admin -- CU1b
 Admin -- CU1c
+Admin -- CU1d
 Admin -- CU7a
 Admin -- CU2
 Admin -- CU3
