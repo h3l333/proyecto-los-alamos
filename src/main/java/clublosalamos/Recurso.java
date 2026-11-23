@@ -24,7 +24,7 @@ public abstract class Recurso {
     private final String descripcion;
     private final int capacidadMaxima;
     private final BigDecimal precioBaseHora;
-    private final boolean habilitado;
+    private boolean habilitado;
 
     protected Recurso(String codigo, String descripcion, int capacidadMaxima, BigDecimal precioBaseHora, boolean habilitado) {
         this.codigo = codigo;
