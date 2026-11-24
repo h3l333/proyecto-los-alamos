@@ -7,7 +7,6 @@ import java.time.format.DateTimeParseException;
 import java.util.InputMismatchException;
 import java.util.List;
 import java.util.Scanner;
-import java.util.UUID;
 
 /**
  * ============================================================================
@@ -35,6 +34,7 @@ import java.util.UUID;
 public class ClubMenuUI {
     private final Club club = new Club();
     private final Scanner input = new Scanner(System.in);
+    private int proximoIdPago = 1;
 
     public void iniciar() {
         byte opcion;
@@ -247,7 +247,7 @@ public class ClubMenuUI {
         System.out.println("Medio de pago: 1) Tarjeta de crédito  2) Tarjeta de débito  3) Billetera virtual");
         System.out.println("Ingrese el medio de pago:");
         byte medio = leerByte();
-        String idPago = UUID.randomUUID().toString();
+        String idPago = String.valueOf(proximoIdPago++);
 
         switch (medio) {
             case 1:
