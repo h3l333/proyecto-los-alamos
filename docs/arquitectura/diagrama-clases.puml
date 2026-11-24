@@ -118,8 +118,10 @@ class Reserva {
     - estado: EstadoReserva
     ~ {static} ESCALA_IMPORTE: int = 2
     ~ {static} REDONDEO_IMPORTE: RoundingMode = HALF_UP
+    - {static} PORCENTAJE_PAGO_INICIAL: BigDecimal = 0.5
     --
-    + calcularImporteTotal(): BigDecimal
+    ~ {static} calcularImporteTotal(socio: Socio, recurso: Recurso, duracionHoras: int): BigDecimal
+    ~ {static} calcularPagoInicial(importeTotal: BigDecimal): BigDecimal
     + registrarPago(pago: Pago): void
     + confirmar(): void
     + cancelar(): void
@@ -201,7 +203,6 @@ class PagoBilleteraVirtual extends Pago {
 }
 
 class Club {
-    - {static} PORCENTAJE_PAGO_INICIAL: BigDecimal = 0.5
     - reservasPorCreacion: Reserva[]
     - proximoNumeroReserva: int
     --

@@ -44,8 +44,6 @@ import java.util.Map;
  * ============================================================================
  */
 public class Club {
-    private static final BigDecimal PORCENTAJE_PAGO_INICIAL = new BigDecimal("0.5");
-
     private final Map<String, Recurso> recursos = new HashMap<>();
     private final Map<Integer, Socio> socios = new HashMap<>();
     private final Map<Integer, Reserva> reservas = new HashMap<>();
@@ -74,17 +72,9 @@ public class Club {
     // Importe del pago inicial (50% del total) que debe abonar el socio al reservar.
     public BigDecimal calcularPagoInicial(int numeroSocio, String codigoRecurso, int duracionHoras) {
         validarDuracion(duracionHoras);
-        Socio socio = obtenerSocio(numeroSocio);
-        Recurso recurso = obtenerRecurso(codigoRecurso);
-        BigDecimal importeTotal = socio.getTipoSocio()
-                .aplicarAjuste(recurso.getPrecioBaseHora().multiply(BigDecimal.valueOf(duracionHoras)));
-        return calcularPagoInicialSobre(importeTotal);
-    }
-
-    // Si el 50% cae en medio centavo se redondea. El saldo pendiente absorbe la diferencia.
-    private BigDecimal calcularPagoInicialSobre(BigDecimal importeTotal) {
-        return importeTotal.multiply(PORCENTAJE_PAGO_INICIAL)
-                .setScale(Reserva.ESCALA_IMPORTE, Reserva.REDONDEO_IMPORTE);
+        BigDecimal importeTotal = Reserva.calcularImporteTotal(obtenerSocio(numeroSocio),
+                obtenerRecurso(codigoRecurso), duracionHoras);
+        return Reserva.calcularPagoInicial(importeTotal);
     }
 
     // Registra una reserva a nombre de un socio. El pago inicial debe ser el 50% del importe total.
@@ -107,15 +97,14 @@ public class Club {
             throw new IllegalStateException("El recurso no está disponible en la fecha y horario solicitados");
         }
 
-        int numeroReserva = proximoNumeroReserva;
-        Reserva reserva = new Reserva(numeroReserva, socio, recurso, fechaUso, horarioInicio, duracionHoras,
-                pagoInicial);
-        BigDecimal pagoEsperado = calcularPagoInicialSobre(reserva.getImporteTotal());
+        BigDecimal pagoEsperado = calcularPagoInicial(numeroSocio, codigoRecurso, duracionHoras);
         if (pagoInicial.getMonto().compareTo(pagoEsperado) != 0) {
             throw new IllegalArgumentException("El pago inicial debe ser el 50% del importe total: " + pagoEsperado);
         }
 
-        proximoNumeroReserva++;
+        int numeroReserva = proximoNumeroReserva++;
+        Reserva reserva = new Reserva(numeroReserva, socio, recurso, fechaUso, horarioInicio, duracionHoras,
+                pagoInicial);
         reservas.put(numeroReserva, reserva);
         reservasPorCreacion.add(reserva);
         enviarEmailConfirmacion(reserva);

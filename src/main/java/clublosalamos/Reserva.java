@@ -48,6 +48,7 @@ public class Reserva {
     // Los importes se manejan en centavos: todo cálculo que genere decimales se redondea con esta regla.
     static final int ESCALA_IMPORTE = 2;
     static final RoundingMode REDONDEO_IMPORTE = RoundingMode.HALF_UP;
+    private static final BigDecimal PORCENTAJE_PAGO_INICIAL = new BigDecimal("0.5");
 
     public Reserva(int numeroReserva, Socio socio, Recurso recurso, LocalDate fechaUso, LocalTime horarioInicio,
                     int duracionHoras, Pago pagoInicial) {
@@ -58,13 +59,18 @@ public class Reserva {
         this.fechaUso = fechaUso;
         this.horarioInicio = horarioInicio;
         this.duracionHoras = duracionHoras;
-        this.importeTotal = calcularImporteTotal();
+        this.importeTotal = calcularImporteTotal(socio, recurso, duracionHoras);
         this.estado = PagoParcial.getInstancia();
         registrarPago(pagoInicial);
     }
 
-    public BigDecimal calcularImporteTotal() {
+    static BigDecimal calcularImporteTotal(Socio socio, Recurso recurso, int duracionHoras) {
         return socio.getTipoSocio().aplicarAjuste(recurso.getPrecioBaseHora().multiply(BigDecimal.valueOf(duracionHoras)));
+    }
+
+    // Si el 50% cae en medio centavo se redondea. El saldo pendiente absorbe la diferencia.
+    static BigDecimal calcularPagoInicial(BigDecimal importeTotal) {
+        return importeTotal.multiply(PORCENTAJE_PAGO_INICIAL).setScale(ESCALA_IMPORTE, REDONDEO_IMPORTE);
     }
 
     public void registrarPago(Pago pago) {
