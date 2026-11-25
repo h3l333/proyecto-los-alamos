@@ -13,6 +13,8 @@ import java.math.BigDecimal;
  *   ajuste (negativo = descuento, positivo = recargo).
  * 2. Permite modificar el porcentaje de ajuste desde el sistema.
  * 3. Aplica el ajuste de la categoría a un importe dado.
+ * 4. Valida el porcentaje de ajuste; cada categoría puede agregar sus
+ *   propias restricciones.
  *
  * Colaboradores:
  * - Socio: Socio la conoce como su categoría.
@@ -35,7 +37,12 @@ public abstract class TipoSocio {
         if (p.compareTo(BigDecimal.ONE.negate()) <= 0) {
             throw new IllegalArgumentException("El descuento no puede ser del 100% o más");
         }
+        validarAjuste(p);
         this.porcentajeAjuste = p;
+    }
+
+    // Cada categoría puede restringir el signo del ajuste. Por defecto admite descuento y recargo.
+    protected void validarAjuste(BigDecimal p) {
     }
 
     // El resultado se redondea a centavos para que el importe sea siempre exacto.
