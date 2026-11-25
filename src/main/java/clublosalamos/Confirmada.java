@@ -7,8 +7,8 @@ package clublosalamos;
  * Nombre de la clase: Confirmada
  *
  * Responsabilidades:
- * 1. Provee acceso a la instancia única en el sistema de la clase Confirmada
- *   e indica si una Reserva confirmada puede cancelarse.
+ * 1. Provee acceso a la instancia única en el sistema de la clase Confirmada.
+ * 2. Permite pasar a Cancelada o Finalizada.
  *
  * Colaboradores:
  * - EstadoReserva: Sucede por herencia.
@@ -26,7 +26,12 @@ public class Confirmada extends EstadoReserva {
     }
 
     @Override
-    public boolean puedeCancelarse() {
-        return true;
+    public EstadoReserva cancelar() {
+        return Cancelada.getInstancia();
+    }
+
+    @Override
+    public EstadoReserva finalizar() {
+        return Finalizada.getInstancia();
     }
 }

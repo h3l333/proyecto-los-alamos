@@ -8,7 +8,8 @@ package clublosalamos;
  *
  * Responsabilidades:
  * 1. Provee acceso a la instancia única en el sistema de la clase PagoParcial
- *   e indica si una Reserva con pago parcial puede cancelarse.
+ *   y admite pagos.
+ * 2. Permite pasar a Confirmada o Cancelada.
  *
  * Colaboradores:
  * - EstadoReserva: Sucede por herencia.
@@ -26,7 +27,17 @@ public class PagoParcial extends EstadoReserva {
     }
 
     @Override
-    public boolean puedeCancelarse() {
-        return true;
+    public EstadoReserva confirmar() {
+        return Confirmada.getInstancia();
+    }
+
+    @Override
+    public EstadoReserva cancelar() {
+        return Cancelada.getInstancia();
+    }
+
+    @Override
+    public void validarPago() {
+        // Una reserva con pago parcial admite pagos.
     }
 }

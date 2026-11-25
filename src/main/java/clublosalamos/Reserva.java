@@ -22,13 +22,16 @@ import java.util.List;
  * 3. Gestiona el estado de la reserva: la confirma, cancela y finaliza,
  *   rechazando los cambios de estado inválidos.
  * 4. Provee un resumen de sus datos y el medio de pago utilizado.
+ * 5. Valida sus propios datos al crearse: duración, fecha y horario de uso
+ *   y que el pago inicial sea el 50% del importe total.
+ * 6. Indica si se superpone con otra reserva del mismo recurso.
  *
  * Colaboradores:
  * - Socio: Es el socio solicitante de la reserva.
  * - Recurso: Es el recurso reservado y provee su precio base por hora.
  * - Pago: Reserva registra los pagos realizados.
- * - EstadoReserva: Reserva lo conoce como su estado y lo consulta para saber
- *   si puede cancelarse.
+ * - EstadoReserva: Reserva lo conoce como su estado y le delega las
+ *   transiciones y la validación de pagos.
  * ============================================================================
  */
 public class Reserva {
@@ -52,6 +55,13 @@ public class Reserva {
 
     public Reserva(int numeroReserva, Socio socio, Recurso recurso, LocalDate fechaUso, LocalTime horarioInicio,
                     int duracionHoras, Pago pagoInicial) {
+        validarDuracion(duracionHoras);
+        if (fechaUso == null || horarioInicio == null) {
+            throw new IllegalArgumentException("La fecha y el horario de uso son obligatorios");
+        }
+        if (fechaUso.atTime(horarioInicio).isBefore(LocalDateTime.now())) {
+            throw new IllegalArgumentException("La fecha y el horario de uso no pueden estar en el pasado");
+        }
         this.numeroReserva = numeroReserva;
         this.fechaCreacion = LocalDateTime.now();
         this.socio = socio;
@@ -60,50 +70,84 @@ public class Reserva {
         this.horarioInicio = horarioInicio;
         this.duracionHoras = duracionHoras;
         this.importeTotal = calcularImporteTotal(socio, recurso, duracionHoras);
+        BigDecimal pagoEsperado = calcularPagoInicial(importeTotal);
+        if (pagoInicial.getMonto().compareTo(pagoEsperado) != 0) {
+            throw new IllegalArgumentException("El pago inicial debe ser el 50% del importe total: " + pagoEsperado);
+        }
+        this.saldoPendiente = importeTotal;
         this.estado = PagoParcial.getInstancia();
         registrarPago(pagoInicial);
     }
 
-    static BigDecimal calcularImporteTotal(Socio socio, Recurso recurso, int duracionHoras) {
+    // Importe del pago inicial (50% del total) que corresponde a una reserva con estos datos.
+    static BigDecimal calcularPagoInicial(Socio socio, Recurso recurso, int duracionHoras) {
+        validarDuracion(duracionHoras);
+        return calcularPagoInicial(calcularImporteTotal(socio, recurso, duracionHoras));
+    }
+
+    private static void validarDuracion(int duracionHoras) {
+        if (duracionHoras <= 0) {
+            throw new IllegalArgumentException("La duración debe ser mayor a cero");
+        }
+    }
+
+    private static BigDecimal calcularImporteTotal(Socio socio, Recurso recurso, int duracionHoras) {
         return socio.getTipoSocio().aplicarAjuste(recurso.getPrecioBaseHora().multiply(BigDecimal.valueOf(duracionHoras)));
     }
 
     // Si el 50% cae en medio centavo se redondea. El saldo pendiente absorbe la diferencia.
-    static BigDecimal calcularPagoInicial(BigDecimal importeTotal) {
+    private static BigDecimal calcularPagoInicial(BigDecimal importeTotal) {
         return importeTotal.multiply(PORCENTAJE_PAGO_INICIAL).setScale(ESCALA_IMPORTE, REDONDEO_IMPORTE);
     }
 
+    // Solo se admiten pagos si el estado lo permite y el monto no supera el saldo pendiente.
     public void registrarPago(Pago pago) {
+        estado.validarPago();
+        if (pago.getMonto().compareTo(saldoPendiente) > 0) {
+            throw new IllegalArgumentException("El pago supera el saldo pendiente: " + saldoPendiente);
+        }
         pagos.add(pago);
         importeAbonado = importeAbonado.add(pago.getMonto());
         saldoPendiente = importeTotal.subtract(importeAbonado);
     }
 
-    public void confirmar() {
-        if (estado != PagoParcial.getInstancia()) {
-            throw new IllegalStateException("No se puede confirmar una reserva en estado " + estado.getNombre());
+    // Confirma la reserva con el pago del saldo. Todo se valida antes de modificar la reserva:
+    // si algo falla, el pago no queda registrado.
+    public void confirmar(Pago pagoSaldo) {
+        EstadoReserva siguiente = estado.confirmar();
+        if (pagoSaldo.getMonto().compareTo(saldoPendiente) != 0) {
+            throw new IllegalArgumentException("El pago debe ser igual al saldo pendiente: " + saldoPendiente);
         }
-        if (saldoPendiente.signum() > 0) {
-            throw new IllegalStateException("No se puede confirmar: queda un saldo pendiente de " + saldoPendiente);
-        }
-        cambiarEstado(Confirmada.getInstancia());
+        registrarPago(pagoSaldo);
+        cambiarEstado(siguiente);
     }
 
     public void cancelar() {
-        if (!estado.puedeCancelarse()) {
-            throw new IllegalStateException("No se puede cancelar una reserva en estado " + estado.getNombre());
-        }
-        cambiarEstado(Cancelada.getInstancia());
+        cambiarEstado(estado.cancelar());
     }
 
+    // Solo puede finalizarse una vez que llegó la fecha y el horario de uso.
     public void finalizar() {
-        if (estado != Confirmada.getInstancia()) {
-            throw new IllegalStateException("No se puede finalizar una reserva en estado " + estado.getNombre());
+        EstadoReserva siguiente = estado.finalizar();
+        if (LocalDateTime.now().isBefore(fechaUso.atTime(horarioInicio))) {
+            throw new IllegalStateException("Todavía no llegó la fecha y el horario de uso de la reserva");
         }
-        cambiarEstado(Finalizada.getInstancia());
+        cambiarEstado(siguiente);
     }
 
-    public void cambiarEstado(EstadoReserva nuevo) {
+    // Dos reservas se superponen si son del mismo recurso y sus franjas horarias se pisan.
+    public boolean seSuperponeCon(Reserva otra) {
+        if (!recurso.getCodigo().equals(otra.recurso.getCodigo())) {
+            return false;
+        }
+        LocalDateTime inicio = fechaUso.atTime(horarioInicio);
+        LocalDateTime fin = inicio.plusHours(duracionHoras);
+        LocalDateTime otroInicio = otra.fechaUso.atTime(otra.horarioInicio);
+        LocalDateTime otroFin = otroInicio.plusHours(otra.duracionHoras);
+        return inicio.isBefore(otroFin) && otroInicio.isBefore(fin);
+    }
+
+    private void cambiarEstado(EstadoReserva nuevo) {
         this.estado = nuevo;
     }
 

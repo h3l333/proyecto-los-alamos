@@ -7,8 +7,9 @@ package clublosalamos;
  * Nombre de la clase: Cancelada
  *
  * Responsabilidades:
- * 1. Provee acceso a la instancia única en el sistema de la clase Cancelada
- *   e indica si una Reserva cancelada puede cancelarse.
+ * 1. Provee acceso a la instancia única en el sistema de la clase Cancelada.
+ * 2. No admite transiciones ni pagos: usa el comportamiento por defecto
+ *   de EstadoReserva.
  *
  * Colaboradores:
  * - EstadoReserva: Sucede por herencia.
@@ -23,10 +24,5 @@ public class Cancelada extends EstadoReserva {
 
     public static Cancelada getInstancia() {
         return INSTANCIA;
-    }
-
-    @Override
-    public boolean puedeCancelarse() {
-        return false;
     }
 }

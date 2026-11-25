@@ -2,7 +2,6 @@ package clublosalamos;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
-import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -18,28 +17,24 @@ import java.util.Map;
  * Responsabilidades:
  * 1. Guarda y manipula las colecciones de recursos, socios y reservas para su
  *   consulta y gestión, registrándolos y buscándolos por su identificador.
- * 2. Registra reservas, verificando que el socio esté registrado y habilitado,
- *   que el recurso esté registrado y disponible en la fecha y franja horaria
- *   solicitadas (considerando las reservas ya registradas), validando el
- *   pago inicial y generando el número único de reserva.
- * 3. Notifica al socio los datos de la reserva registrada mediante un email
- *   simulado por consola.
- * 4. Confirma reservas con el pago del saldo pendiente, las cancela y las
- *   finaliza.
- * 5. Consulta reservas por socio y por recurso y fecha, y genera el informe
- *   de reservas de un día.
- * 6. Verifica la situación administrativa de un socio, lo da de baja,
+ * 2. Registra reservas, verificando que el socio esté registrado y habilitado
+ *   y que el recurso esté registrado y disponible en la fecha y franja
+ *   horaria solicitadas (sin superponerse con las reservas ya registradas),
+ *   y generando el número único de reserva.
+ * 3. Delega en las reservas su confirmación, cancelación y finalización.
+ * 4. Consulta reservas por socio, por recurso y fecha, y por día.
+ * 5. Verifica la situación administrativa de un socio, lo da de baja,
  *   suspende a un socio habilitado, pasa a moroso a un socio suspendido y
  *   habilita a un socio suspendido o moroso.
- * 7. Configura los porcentajes de descuento o recargo de cada categoría de
+ * 6. Configura los porcentajes de descuento o recargo de cada categoría de
  *   socio.
  *
  * Colaboradores:
  * - Recurso: Club los registra y verifica su disponibilidad.
  * - Socio: Club los registra y verifica si pueden reservar.
  * - Reserva: Club las registra, confirma, cancela, finaliza y consulta.
- * - Pago: Club lo recibe para validar su monto y registrar los pagos de una reserva.
- * - EstadoReserva: Club consulta el estado de las reservas.
+ * - Pago: Club lo recibe y se lo pasa a la reserva.
+ * - EstadoReserva: Club consulta si una reserva está cancelada.
  * - TipoSocio: Club configura el porcentaje de ajuste de cada categoría.
  * ============================================================================
  */
@@ -71,13 +66,11 @@ public class Club {
 
     // Importe del pago inicial (50% del total) que debe abonar el socio al reservar.
     public BigDecimal calcularPagoInicial(int numeroSocio, String codigoRecurso, int duracionHoras) {
-        validarDuracion(duracionHoras);
-        BigDecimal importeTotal = Reserva.calcularImporteTotal(obtenerSocio(numeroSocio),
-                obtenerRecurso(codigoRecurso), duracionHoras);
-        return Reserva.calcularPagoInicial(importeTotal);
+        return Reserva.calcularPagoInicial(obtenerSocio(numeroSocio), obtenerRecurso(codigoRecurso), duracionHoras);
     }
 
-    // Registra una reserva a nombre de un socio. El pago inicial debe ser el 50% del importe total.
+    // Registra una reserva a nombre de un socio. La reserva valida sus propios datos al crearse;
+    // el número solo se consume si la reserva queda registrada.
     public Reserva registrarReserva(int numeroSocio, String codigoRecurso, LocalDate fechaUso,
                                     LocalTime horarioInicio, int duracionHoras, Pago pagoInicial) {
         Socio socio = obtenerSocio(numeroSocio);
@@ -85,58 +78,28 @@ public class Club {
             throw new IllegalStateException("La situación administrativa del socio no permite reservar");
         }
         Recurso recurso = obtenerRecurso(codigoRecurso);
-        validarDuracion(duracionHoras);
-        if (fechaUso == null || horarioInicio == null) {
-            throw new IllegalArgumentException("La fecha y el horario de uso son obligatorios");
-        }
-        if (fechaUso.atTime(horarioInicio).isBefore(LocalDateTime.now())) {
-            throw new IllegalArgumentException("La fecha y el horario de uso no pueden estar en el pasado");
-        }
-        if (!recurso.estaDisponible(fechaUso, horarioInicio, duracionHoras)
-                || haySuperposicion(recurso, fechaUso, horarioInicio, duracionHoras)) {
+        Reserva reserva = new Reserva(proximoNumeroReserva, socio, recurso, fechaUso, horarioInicio, duracionHoras,
+                pagoInicial);
+        if (!recurso.estaDisponible(fechaUso, horarioInicio, duracionHoras) || haySuperposicion(reserva)) {
             throw new IllegalStateException("El recurso no está disponible en la fecha y horario solicitados");
         }
-
-        BigDecimal pagoEsperado = calcularPagoInicial(numeroSocio, codigoRecurso, duracionHoras);
-        if (pagoInicial.getMonto().compareTo(pagoEsperado) != 0) {
-            throw new IllegalArgumentException("El pago inicial debe ser el 50% del importe total: " + pagoEsperado);
-        }
-
-        int numeroReserva = proximoNumeroReserva++;
-        Reserva reserva = new Reserva(numeroReserva, socio, recurso, fechaUso, horarioInicio, duracionHoras,
-                pagoInicial);
-        reservas.put(numeroReserva, reserva);
+        proximoNumeroReserva++;
+        reservas.put(reserva.getNumeroReserva(), reserva);
         reservasPorCreacion.add(reserva);
-        enviarEmailConfirmacion(reserva);
         return reserva;
     }
 
     // Registra el pago del saldo restante y confirma la reserva.
     public void confirmarReserva(int numeroReserva, Pago pagoSaldo) {
-        Reserva reserva = obtenerReserva(numeroReserva);
-        if (reserva.getEstado() != PagoParcial.getInstancia()) {
-            throw new IllegalStateException("Solo se puede confirmar una reserva en estado de pago parcial");
-        }
-        // Se valida que el monto del pago sea exactamente el saldo pendiente.
-        if (pagoSaldo.getMonto().compareTo(reserva.getSaldoPendiente()) != 0) {
-            throw new IllegalArgumentException("El pago debe ser igual al saldo pendiente: "
-                    + reserva.getSaldoPendiente());
-        }
-        reserva.registrarPago(pagoSaldo);
-        reserva.confirmar();
+        obtenerReserva(numeroReserva).confirmar(pagoSaldo);
     }
 
     public void cancelarReserva(int numeroReserva) {
         obtenerReserva(numeroReserva).cancelar();
     }
 
-    // Da por concluida la reserva una vez que llegó la fecha y el horario de uso.
     public void finalizarReserva(int numeroReserva) {
-        Reserva reserva = obtenerReserva(numeroReserva);
-        if (LocalDateTime.now().isBefore(reserva.getFechaUso().atTime(reserva.getHorarioInicio()))) {
-            throw new IllegalStateException("Todavía no llegó la fecha y el horario de uso de la reserva");
-        }
-        reserva.finalizar();
+        obtenerReserva(numeroReserva).finalizar();
     }
 
     public List<Reserva> consultarReservasPorSocio(int numeroSocio) {
@@ -159,23 +122,15 @@ public class Club {
         return resultado;
     }
 
-    // Informe de todas las reservas con fecha de uso en el día indicado, en el orden en que fueron creadas.
-    public String generarInformeReservasDelDia(LocalDate fecha) {
+    // Reservas con fecha de uso en el día indicado, en el orden en que fueron creadas.
+    public List<Reserva> consultarReservasDelDia(LocalDate fecha) {
         List<Reserva> delDia = new ArrayList<>();
         for (Reserva reserva : reservasPorCreacion) {
             if (reserva.getFechaUso().equals(fecha)) {
                 delDia.add(reserva);
             }
         }
-
-        StringBuilder informe = new StringBuilder("INFORME DE RESERVAS DEL " + fecha + " (en orden de creación)\n");
-        if (delDia.isEmpty()) {
-            informe.append("No hay reservas para este día.");
-        }
-        for (Reserva reserva : delDia) {
-            informe.append(reserva.resumen()).append("\n");
-        }
-        return informe.toString();
+        return delDia;
     }
 
     public void darSocioDeBaja(int numeroSocio) {
@@ -184,30 +139,17 @@ public class Club {
 
     // Solo un socio habilitado puede ser suspendido.
     public void suspenderSocio(int numeroSocio) {
-        Socio socio = obtenerSocio(numeroSocio);
-        if (socio.getSituacionAdministrativa() != Habilitado.getInstancia()) {
-            throw new IllegalStateException("Solo un socio habilitado puede ser suspendido");
-        }
-        socio.setSituacionAdmin(Suspendido.getInstancia());
+        obtenerSocio(numeroSocio).suspender();
     }
 
     // Solo un socio suspendido puede pasar a moroso.
     public void marcarSocioMoroso(int numeroSocio) {
-        Socio socio = obtenerSocio(numeroSocio);
-        if (socio.getSituacionAdministrativa() != Suspendido.getInstancia()) {
-            throw new IllegalStateException("Solo un socio suspendido puede pasar a moroso");
-        }
-        socio.setSituacionAdmin(Moroso.getInstancia());
+        obtenerSocio(numeroSocio).marcarMoroso();
     }
 
     // Solo un socio suspendido o moroso puede volver a ser habilitado.
     public void habilitarSocio(int numeroSocio) {
-        Socio socio = obtenerSocio(numeroSocio);
-        SituacionAdmin situacion = socio.getSituacionAdministrativa();
-        if (situacion != Suspendido.getInstancia() && situacion != Moroso.getInstancia()) {
-            throw new IllegalStateException("Solo un socio suspendido o moroso puede ser habilitado");
-        }
-        socio.setSituacionAdmin(Habilitado.getInstancia());
+        obtenerSocio(numeroSocio).habilitar();
     }
 
     // Los porcentajes se expresan en puntos porcentuales: positivo = recargo, negativo = descuento.
@@ -216,16 +158,10 @@ public class Club {
     }
 
     public void configurarAjusteCategoriaSocioVitalicio(BigDecimal porcentaje) {
-        if (porcentaje.signum() > 0) {
-            throw new IllegalArgumentException("La categoría Vitalicio solo admite descuento (porcentaje negativo o cero)");
-        }
         SocioVitalicio.getInstancia().setPorcentajeAjuste(porcentaje.movePointLeft(2));
     }
 
     public void configurarAjusteCategoriaSocioAdherente(BigDecimal porcentaje) {
-        if (porcentaje.signum() < 0) {
-            throw new IllegalArgumentException("La categoría Adherente solo admite recargo (porcentaje positivo o cero)");
-        }
         Adherente.getInstancia().setPorcentajeAjuste(porcentaje.movePointLeft(2));
     }
 
@@ -253,36 +189,13 @@ public class Club {
         return reserva;
     }
 
-    private void validarDuracion(int duracionHoras) {
-        if (duracionHoras <= 0) {
-            throw new IllegalArgumentException("La duración debe ser mayor a cero");
-        }
-    }
-
     // Las reservas canceladas liberan el recurso, por lo que no cuentan como superposición.
-    private boolean haySuperposicion(Recurso recurso, LocalDate fecha, LocalTime inicio, int horas) {
-        LocalDateTime nuevoInicio = fecha.atTime(inicio);
-        LocalDateTime nuevoFin = nuevoInicio.plusHours(horas);
+    private boolean haySuperposicion(Reserva nueva) {
         for (Reserva reserva : reservasPorCreacion) {
-            if (!reserva.getRecurso().getCodigo().equals(recurso.getCodigo())
-                    || reserva.getEstado() == Cancelada.getInstancia()) {
-                continue;
-            }
-            LocalDateTime inicioExistente = reserva.getFechaUso().atTime(reserva.getHorarioInicio());
-            LocalDateTime finExistente = inicioExistente.plusHours(reserva.getDuracionHoras());
-            if (nuevoInicio.isBefore(finExistente) && inicioExistente.isBefore(nuevoFin)) {
+            if (reserva.getEstado() != Cancelada.getInstancia() && reserva.seSuperponeCon(nueva)) {
                 return true;
             }
         }
         return false;
-    }
-
-    // Simulación: en lugar de enviar un email real, lo imprime por consola.
-    private void enviarEmailConfirmacion(Reserva reserva) {
-        System.out.println("\n--- EMAIL SIMULADO ---");
-        System.out.println("Para: " + reserva.getSocio().getCorreoElectronico());
-        System.out.println("Asunto: Reserva #" + reserva.getNumeroReserva() + " registrada");
-        System.out.println(reserva.resumen());
-        System.out.println("----------------------");
     }
 }

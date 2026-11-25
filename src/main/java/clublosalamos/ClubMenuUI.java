@@ -20,6 +20,8 @@ import java.util.Scanner;
  * 2. Captura las excepciones lanzadas por Club y muestra su mensaje al
  *   usuario.
  * 3. Construye los recursos, socios y pagos a partir de los datos ingresados.
+ * 4. Muestra el email simulado de confirmación de reserva y el informe de
+ *   reservas del día.
  *
  * Colaboradores:
  * - Club: Club gestiona las interacciones entre los objetos representativos
@@ -240,7 +242,17 @@ public class ClubMenuUI {
         Pago pago = pedirPago(pagoInicial);
         Reserva reserva = club.registrarReserva(numeroSocio, codigoRecurso, fechaUso, horarioInicio,
                 duracionHoras, pago);
+        mostrarEmailConfirmacion(reserva);
         System.out.println("Reserva registrada con el número " + reserva.getNumeroReserva() + ".");
+    }
+
+    // Simulación: en lugar de enviar un email real, lo imprime por consola.
+    private void mostrarEmailConfirmacion(Reserva reserva) {
+        System.out.println("\n--- EMAIL SIMULADO ---");
+        System.out.println("Para: " + reserva.getSocio().getCorreoElectronico());
+        System.out.println("Asunto: Reserva #" + reserva.getNumeroReserva() + " registrada");
+        System.out.println(reserva.resumen());
+        System.out.println("----------------------");
     }
 
     private Pago pedirPago(BigDecimal monto) {
@@ -340,7 +352,15 @@ public class ClubMenuUI {
 
     private void generarInformeDelDia() {
         System.out.println("Fecha (aaaa-mm-dd):");
-        System.out.println(club.generarInformeReservasDelDia(LocalDate.parse(input.nextLine().trim())));
+        LocalDate fecha = LocalDate.parse(input.nextLine().trim());
+        List<Reserva> delDia = club.consultarReservasDelDia(fecha);
+        System.out.println("INFORME DE RESERVAS DEL " + fecha + " (en orden de creación)");
+        if (delDia.isEmpty()) {
+            System.out.println("No hay reservas para este día.");
+        }
+        for (Reserva reserva : delDia) {
+            System.out.println(reserva.resumen());
+        }
     }
 
     private Recurso pedirDatosRecurso() {
