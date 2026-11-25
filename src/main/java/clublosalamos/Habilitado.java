@@ -9,6 +9,7 @@ package clublosalamos;
  * Responsabilidades:
  * 1. Provee acceso a la instancia única en el sistema de la clase Habilitado
  *   e indica si un Socio habilitado puede reservar.
+ * 2. Permite pasar a Suspendido.
  *
  * Colaboradores:
  * - SituacionAdmin: Sucede por herencia.
@@ -28,5 +29,10 @@ public class Habilitado extends SituacionAdmin {
     @Override
     public boolean puedeReservar() {
         return true;
+    }
+
+    @Override
+    public SituacionAdmin suspender() {
+        return Suspendido.getInstancia();
     }
 }

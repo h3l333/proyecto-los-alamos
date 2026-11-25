@@ -9,6 +9,7 @@ package clublosalamos;
  * Responsabilidades:
  * 1. Provee acceso a la instancia única en el sistema de la clase Moroso
  *   e indica si un Socio moroso puede reservar.
+ * 2. Permite volver a Habilitado.
  *
  * Colaboradores:
  * - SituacionAdmin: Sucede por herencia.
@@ -28,5 +29,10 @@ public class Moroso extends SituacionAdmin {
     @Override
     public boolean puedeReservar() {
         return false;
+    }
+
+    @Override
+    public SituacionAdmin habilitar() {
+        return Habilitado.getInstancia();
     }
 }

@@ -13,9 +13,12 @@ import java.time.LocalDate;
  * 2. Indica si el socio puede realizar reservas según su situación
  *   administrativa.
  * 3. Permite modificar su situación administrativa.
+ * 4. Cambia de situación administrativa (suspender, marcar moroso, habilitar)
+ *   delegando la validación de la transición en su situación actual.
  *
  * Colaboradores:
- * - SituacionAdmin: Socio le consulta si puede reservar.
+ * - SituacionAdmin: Socio le consulta si puede reservar y le delega las
+ *   transiciones de situación administrativa.
  * - TipoSocio: Socio lo conoce como su categoría.
  * ============================================================================
  */
@@ -46,6 +49,18 @@ public class Socio {
 
     public boolean puedeReservar() {
         return situacionAdministrativa.puedeReservar();
+    }
+
+    public void suspender() {
+        situacionAdministrativa = situacionAdministrativa.suspender();
+    }
+
+    public void marcarMoroso() {
+        situacionAdministrativa = situacionAdministrativa.marcarMoroso();
+    }
+
+    public void habilitar() {
+        situacionAdministrativa = situacionAdministrativa.habilitar();
     }
 
     public int getNumeroSocio() {
