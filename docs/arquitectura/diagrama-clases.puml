@@ -13,6 +13,11 @@ class Socio {
     - tipo: TipoSocio
     --
     + puedeReservar(): boolean
+    + describirSituacion(): String
+    + suspender(): void
+    + marcarMoroso(): void
+    + habilitar(): void
+    + darDeBaja(): void
     + getNumeroSocio(): int
     + getNombre(): String
     + getApellido(): String
@@ -22,7 +27,6 @@ class Socio {
     + getFechaIngreso(): Date
     + getTipoSocio(): TipoSocio
     + getSituacionAdministrativa(): SituacionAdmin
-    + setSituacionAdmin(nueva: SituacionAdmin): void
 }
 
 abstract class TipoSocio {
@@ -32,25 +36,39 @@ abstract class TipoSocio {
     + getDescripcion(): String
     + getPorcentajeAjuste(): BigDecimal
     + setPorcentajeAjuste(porcentaje: BigDecimal): void
+    # validarAjuste(porcentaje: BigDecimal): void
     + aplicarAjuste(importe: BigDecimal): BigDecimal
+    + describir(): String
 }
 
 class Activo extends TipoSocio {
 }
 
 class Adherente extends TipoSocio {
+    # validarAjuste(porcentaje: BigDecimal): void
 }
 
-class SocioVitalicio extends TipoSocio {
+class Vitalicio extends TipoSocio {
+    # validarAjuste(porcentaje: BigDecimal): void
 }
 
-note right of TipoSocio: porcentajeAjuste se expresa como fracción:\npositivo = recargo, negativo = descuento.\nCada categoría es un singleton (constructor\nprivado y getInstancia()), igual que los\nestados de Reserva y las\nsituaciones administrativas.
+note right of TipoSocio: porcentajeAjuste se expresa como fracción:\npositivo = recargo, negativo = descuento.\nCada categoría es un singleton con\ninstanciación temprana (constructor privado\ny getInstancia()), igual que los estados de\nReserva y las situaciones administrativas.
 
 note as NotaSingletons
     PagoParcial, Confirmada, Cancelada, Finalizada,
     Habilitado, Suspendido, DadoDeBaja y Moroso son
-    singletons: constructor privado y getInstancia().
+    singletons con instanciación temprana:
+    constructor privado y getInstancia().
 end note
+
+class Importe {
+    - {static} ESCALA: int = 2
+    - {static} REDONDEO: RoundingMode = HALF_UP
+    --
+    + {static} redondear(importe: BigDecimal): BigDecimal
+}
+
+note right of Importe: clase utilitaria:\nconstructor privado, solo\nmétodos de clase.
 
 abstract class Recurso {
     - codigo: String
@@ -58,9 +76,12 @@ abstract class Recurso {
     - capacidadMaxima: int
     - precioBaseHora: BigDecimal
     - habilitado: boolean
+    - reservas: ArrayList<Reserva>
     --
-    + estaDisponible(fecha: Date, horaInicio: Time, horas: int): boolean
+    + estaDisponible(fecha: Date, horaInicio: int, horas: int): boolean
+    + agregarReserva(reserva: Reserva): void
     + devolverTipo(): String
+    + getDetalle(): String
     + getCodigo(): String
     + getDescripcion(): String
     + getCapacidadMaxima(): int
@@ -73,6 +94,7 @@ class Quincho extends Recurso {
     - tieneFreezer: boolean
     - cantidadMesas: int
     --
+    + getDetalle(): String
     + isEsCerrado(): boolean
     + isTieneFreezer(): boolean
     + getCantidadMesas(): int
@@ -82,6 +104,7 @@ class Salon extends Recurso {
     - tieneAireAcondicionado: boolean
     - poseeEscenario: boolean
     --
+    + getDetalle(): String
     + isTieneAireAcondicionado(): boolean
     + isPoseeEscenario(): boolean
 }
@@ -90,6 +113,7 @@ class Cancha extends Recurso {
     - tipoDeporte: String
     - tieneIluminacion: boolean
     --
+    + getDetalle(): String
     + getTipoDeporte(): String
     + isTieneIluminacion(): boolean
 }
@@ -97,80 +121,99 @@ class Cancha extends Recurso {
 class Parrilla extends Recurso {
     - capacidadKgCarne: double
     --
+    + getDetalle(): String
     + getCapacidadKgCarne(): double
 }
 
 class EspacioRecreacion extends Recurso {
     - tipoEspacio: String
     --
+    + getDetalle(): String
     + getTipoEspacio(): String
 }
 
 class Reserva {
+    - {static} proximoNumero: int
+    - {static} PORCENTAJE_PAGO_INICIAL: BigDecimal = 0.5
     - numeroReserva: int
     - fechaCreacion: DateTime
     - fechaUso: Date
-    - horarioInicio: Time
+    - horaInicio: int
     - duracionHoras: int
     - importeTotal: BigDecimal
+    - pagos: ArrayList<Pago>
     - importeAbonado: BigDecimal
     - saldoPendiente: BigDecimal
     - estado: EstadoReserva
-    ~ {static} ESCALA_IMPORTE: int = 2
-    ~ {static} REDONDEO_IMPORTE: RoundingMode = HALF_UP
-    - {static} PORCENTAJE_PAGO_INICIAL: BigDecimal = 0.5
     --
-    ~ {static} calcularImporteTotal(socio: Socio, recurso: Recurso, duracionHoras: int): BigDecimal
-    ~ {static} calcularPagoInicial(importeTotal: BigDecimal): BigDecimal
-    + registrarPago(pago: Pago): void
-    + confirmar(): void
+    + {static} calcularPagoInicial(socio: Socio, recurso: Recurso, fechaUso: Date, horaInicio: int, duracionHoras: int): BigDecimal
+    - {static} validarSolicitud(recurso: Recurso, fechaUso: Date, horaInicio: int, duracionHoras: int): void
+    - registrarPago(pago: Pago): void
+    + confirmar(pagoSaldo: Pago): void
     + cancelar(): void
     + finalizar(): void
+    + ocupaFranja(fecha: Date, hora: int, horas: int): boolean
+    + esDelSocio(numeroSocio: int): boolean
+    + esDelRecurso(codigoRecurso: String): boolean
+    + esDelDia(fecha: Date): boolean
+    + getCorreoSocio(): String
     + resumen(): String
-    + getMedioPago(): String
+    + getNumeroReserva(): int
     + getSocio(): Socio
     + getRecurso(): Recurso
-    + getNumeroReserva(): int
     + getFechaCreacion(): DateTime
     + getFechaUso(): Date
-    + getHorarioInicio(): Time
+    + getHoraInicio(): int
     + getDuracionHoras(): int
     + getImporteTotal(): BigDecimal
     + getImporteAbonado(): BigDecimal
     + getSaldoPendiente(): BigDecimal
     + getEstado(): EstadoReserva
-    + cambiarEstado(nuevo: EstadoReserva): void
 }
 
 abstract class EstadoReserva {
     - nombre: String
     --
     + getNombre(): String
-    + puedeCancelarse(): boolean
+    + confirmar(): EstadoReserva
+    + cancelar(): EstadoReserva
+    + finalizar(): EstadoReserva
+    + validarPago(): void
+    + ocupaRecurso(): boolean
 }
 
 class PagoParcial extends EstadoReserva {
+    + confirmar(): EstadoReserva
+    + cancelar(): EstadoReserva
+    + validarPago(): void
 }
 
 class Confirmada extends EstadoReserva {
+    + cancelar(): EstadoReserva
+    + finalizar(): EstadoReserva
 }
 
 class Cancelada extends EstadoReserva {
+    + ocupaRecurso(): boolean
 }
 
 class Finalizada extends EstadoReserva {
 }
 
-note right of Reserva: el medio de pago utilizado\nse obtiene del tipo concreto\nde Pago asociado (PagoCredito,\nPagoDebito o PagoBilleteraVirtual)\nmediante getMedioPago(),\nno se duplica como atributo.\nconfirmar(), cancelar() y finalizar()\nlanzan IllegalStateException si el\nestado actual no admite la operación.
+note right of Reserva: el número se genera con una variable\nde clase y solo se consume si la reserva\nes válida. Los medios de pago utilizados\nse obtienen de los Pago asociados\nmediante getMedioPago(), no se duplican\ncomo atributo. Las transiciones inválidas\nlanzan IllegalStateException (patrón State).
 
 abstract class Pago {
-    - idPago: String
+    - {static} proximoId: int
+    - idPago: int
     - monto: BigDecimal
     - fechaHora: DateTime
     --
-    + getFechaHora(): DateTime
+    + {static} crearCredito(monto: BigDecimal, bancoEmisor: String, cantCuotas: int): Pago
+    + {static} crearDebito(monto: BigDecimal, bancoEmisor: String, cbu: String, titularCuenta: String): Pago
+    + {static} crearBilleteraVirtual(monto: BigDecimal, nombrePlataforma: String, cvu: String, alias: String): Pago
     + getMedioPago(): String
-    + getIdPago(): String
+    + getFechaHora(): DateTime
+    + getIdPago(): int
     + getMonto(): BigDecimal
 }
 
@@ -178,6 +221,7 @@ class PagoCredito extends Pago {
     - bancoEmisor: String
     - cantCuotas: int
     --
+    + getMedioPago(): String
     + getBancoEmisor(): String
     + getCantCuotas(): int
 }
@@ -187,6 +231,7 @@ class PagoDebito extends Pago {
     - cbu: String
     - titularCuenta: String
     --
+    + getMedioPago(): String
     + getTitularCuenta() : String
     + getBancoEmisor(): String
     + getCbu(): String
@@ -197,65 +242,100 @@ class PagoBilleteraVirtual extends Pago {
     - cvu: String
     - alias: String
     --
+    + getMedioPago(): String
     + getNombrePlataforma(): String
     + getCvu(): String
     + getAlias(): String
 }
 
+note right of Pago: factory methods: crean cada medio de\npago; los constructores de las subclases\nson de visibilidad de paquete.
+
 class Club {
-    - reservasPorCreacion: Reserva[]
-    - proximoNumeroReserva: int
-    - proximoIdPago: int
+    - recursos: Hashtable<String, Recurso>
+    - socios: Hashtable<Integer, Socio>
+    - reservas: Hashtable<Integer, Reserva>
+    - reservasPorCreacion: ArrayList<Reserva>
     --
+    + registrarQuincho(codigo: String, descripcion: String, capacidadMaxima: int, precioBaseHora: BigDecimal, habilitado: boolean, esCerrado: boolean, tieneFreezer: boolean, cantidadMesas: int): Recurso
+    + registrarSalon(codigo: String, descripcion: String, capacidadMaxima: int, precioBaseHora: BigDecimal, habilitado: boolean, tieneAireAcondicionado: boolean, poseeEscenario: boolean): Recurso
+    + registrarCancha(codigo: String, descripcion: String, capacidadMaxima: int, precioBaseHora: BigDecimal, habilitado: boolean, tipoDeporte: String, tieneIluminacion: boolean): Recurso
+    + registrarParrilla(codigo: String, descripcion: String, capacidadMaxima: int, precioBaseHora: BigDecimal, habilitado: boolean, capacidadKgCarne: double): Recurso
+    + registrarEspacioRecreacion(codigo: String, descripcion: String, capacidadMaxima: int, precioBaseHora: BigDecimal, habilitado: boolean, tipoEspacio: String): Recurso
     + registrarSocio(numeroSocio: int, nombre: String, apellido: String, documento: String, telefono: String, correo: String, tipo: TipoSocio): void
-    + obtenerSocio(numeroSocio: int): Socio
-    + obtenerReserva(numeroReserva: int): Reserva
+    + verificarSituacionAdministrativa(numeroSocio: int): boolean
+    + describirSituacionAdministrativa(numeroSocio: int): String
     + darSocioDeBaja(numeroSocio: int): void
     + suspenderSocio(numeroSocio: int): void
     + marcarSocioMoroso(numeroSocio: int): void
     + habilitarSocio(numeroSocio: int): void
-    + registrarQuincho(codigo: String, descripcion: String, capacidadMaxima: int, precioBaseHora: BigDecimal, habilitado: boolean, esCerrado: boolean, tieneFreezer: boolean, cantidadMesas: int): void
-    + registrarSalon(codigo: String, descripcion: String, capacidadMaxima: int, precioBaseHora: BigDecimal, habilitado: boolean, tieneAireAcondicionado: boolean, poseeEscenario: boolean): void
-    + registrarCancha(codigo: String, descripcion: String, capacidadMaxima: int, precioBaseHora: BigDecimal, habilitado: boolean, tipoDeporte: String, tieneIluminacion: boolean): void
-    + registrarParrilla(codigo: String, descripcion: String, capacidadMaxima: int, precioBaseHora: BigDecimal, habilitado: boolean, capacidadKgCarne: double): void
-    + registrarEspacioRecreacion(codigo: String, descripcion: String, capacidadMaxima: int, precioBaseHora: BigDecimal, habilitado: boolean, tipoEspacio: String): void
-    + crearPagoCredito(monto: BigDecimal, banco: String, cuotas: int): Pago
-    + crearPagoDebito(monto: BigDecimal, banco: String, cbu: String, titular: String): Pago
-    + crearPagoBilleteraVirtual(monto: BigDecimal, plataforma: String, cvu: String, alias: String): Pago
-    + configurarAjusteCategoriaSocioActivo(porcentaje: BigDecimal): void
-    + configurarAjusteCategoriaSocioVitalicio(porcentaje: BigDecimal): void
-    + configurarAjusteCategoriaSocioAdherente(porcentaje: BigDecimal): void
-    + calcularPagoInicial(numeroSocio: int, codigoRecurso: String, duracionHoras: int): BigDecimal
-    + registrarReserva(numeroSocio: int, codigoRecurso: String, fechaUso: Date, horarioInicio: Time, duracionHoras: int, pagoInicial: Pago): Reserva
-    + verificarSituacionAdministrativa(numeroSocio: int): boolean
+    + calcularPagoInicial(numeroSocio: int, codigoRecurso: String, fechaUso: Date, horaInicio: int, duracionHoras: int): BigDecimal
+    + registrarReserva(numeroSocio: int, codigoRecurso: String, fechaUso: Date, horaInicio: int, duracionHoras: int, pagoInicial: Pago): Reserva
+    + consultarSaldoPendiente(numeroReserva: int): BigDecimal
     + confirmarReserva(numeroReserva: int, pagoSaldo: Pago): void
     + cancelarReserva(numeroReserva: int): void
     + finalizarReserva(numeroReserva: int): void
-    + consultarReservasPorSocio(numeroSocio: int): Reserva[]
-    + consultarReservasPorRecursoYFecha(codigoRecurso: String, fecha: Date): Reserva[]
-    + generarInformeReservasDelDia(fecha: Date): String
+    + consultarReservasPorSocio(numeroSocio: int): ArrayList<Reserva>
+    + consultarReservasPorRecursoYFecha(codigoRecurso: String, fecha: Date): ArrayList<Reserva>
+    + consultarReservasDelDia(fecha: Date): ArrayList<Reserva>
+    + configurarAjusteCategoria(tipo: TipoSocio, porcentaje: BigDecimal): void
+    + describirCategorias(): String
 }
+
+note right of Club: Doble Almacenamiento: reservas (Hashtable)\npara el acceso directo por número y\nreservasPorCreacion (ArrayList) para\nrecorrerlas en orden de creación. Se\nactualizan juntos en registrarReserva().\nLas búsquedas por identificador lanzan\nIllegalArgumentException si no existen.
 
 abstract class SituacionAdmin {
     - descSituacionAdmin: String
     --
-    + puedeReservar(): boolean
     + getSituacionAdmin(): String
+    + puedeReservar(): boolean
+    + suspender(): SituacionAdmin
+    + marcarMoroso(): SituacionAdmin
+    + habilitar(): SituacionAdmin
+    + darDeBaja(): SituacionAdmin
 }
 
 class Habilitado extends SituacionAdmin {
+    + puedeReservar(): boolean
+    + suspender(): SituacionAdmin
 }
 
 class Suspendido extends SituacionAdmin {
+    + puedeReservar(): boolean
+    + marcarMoroso(): SituacionAdmin
+    + habilitar(): SituacionAdmin
 }
 
 class DadoDeBaja extends SituacionAdmin {
+    + puedeReservar(): boolean
+    + darDeBaja(): SituacionAdmin
 }
 
 class Moroso extends SituacionAdmin {
+    + puedeReservar(): boolean
+    + habilitar(): SituacionAdmin
 }
 
-class ClubMenuUI {
+class ConsoleView {
+    - entrada: Scanner
+    --
+    + mostrarMenuPrincipal(): int
+    + mostrarMenuTipoRecurso(): int
+    + mostrarMenuCategoria(): int
+    + mostrarMenuMedioPago(): int
+    + pedirTexto(mensaje: String): String
+    + pedirEntero(mensaje: String): int
+    + pedirDouble(mensaje: String): double
+    + pedirBigDecimal(mensaje: String): BigDecimal
+    + pedirBooleano(mensaje: String): boolean
+    + pedirFecha(mensaje: String): Date
+    + mostrarMensaje(mensaje: String): void
+    + mostrarReservas(reservas: ArrayList<Reserva>, titulo: String): void
+    + mostrarEmailConfirmacion(reserva: Reserva): void
+}
+
+class ClubController {
+    - modelo: Club
+    - vista: ConsoleView
     --
     + iniciar(): void
 }
@@ -265,17 +345,16 @@ class Main {
     + {static} main(args: String[]): void
 }
 
-note right of Club: obtenerSocio() y obtenerReserva()\nlanzan IllegalArgumentException si\nno existen. registrarReserva() valida el pago\ninicial, genera el número de reserva,\nla almacena y simula por consola\nel envío del email al socio con los\ndatos de la reserva.
-
-Main "1" -- "1" ClubMenuUI : instancia >
-ClubMenuUI "1" -- "1" Club : depende de >
-Club "1" -- "0..*" Socio : registra >
-Club "1" -- "0..*" Recurso : administra >
-Club "1" -- "0..*" Reserva : gestiona >
+Main "1" -- "1" ClubController : crea >
+ClubController "1" -- "1" Club : modelo >
+ClubController "1" -- "1" ConsoleView : vista >
+Club "1" o-- "0..*" Socio : registra >
+Club "1" o-- "0..*" Recurso : administra >
+Club "1" o-- "0..*" Reserva : gestiona >
 Socio "1" -- "0..*" Reserva : realiza >
 Socio "1" -- "1" SituacionAdmin : tiene >
 Socio "1" -- "1" TipoSocio : pertenece a >
 Recurso "1" -- "0..*" Reserva : es reservado en >
-Reserva "1" -- "1..*" Pago : registra >
+Reserva "1" *-- "1..*" Pago : registra >
 Reserva "1" -- "1" EstadoReserva : tiene >
 @enduml
