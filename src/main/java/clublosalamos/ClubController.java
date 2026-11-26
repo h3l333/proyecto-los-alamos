@@ -103,7 +103,6 @@ public class ClubController {
     }
 
     private void registrarRecurso() {
-        // Se valida el tipo antes de pedir el resto de los datos para no perderlos.
         int tipo;
         do {
             tipo = vista.mostrarMenuTipoRecurso();
