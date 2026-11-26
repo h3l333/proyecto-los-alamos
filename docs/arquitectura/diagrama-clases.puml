@@ -205,7 +205,7 @@ class PagoBilleteraVirtual extends Pago {
 class Club {
     - reservasPorCreacion: Reserva[]
     - proximoNumeroReserva: int
-    - pagoFactory: PagoFactory
+    - proximoIdPago: int
     --
     + registrarSocio(numeroSocio: int, nombre: String, apellido: String, documento: String, telefono: String, correo: String, tipo: TipoSocio): void
     + obtenerSocio(numeroSocio: int): Socio
@@ -255,14 +255,6 @@ class DadoDeBaja extends SituacionAdmin {
 class Moroso extends SituacionAdmin {
 }
 
-class PagoFactory {
-    - proximoIdPago: int
-    --
-    + crearCredito(monto: BigDecimal, banco: String, cuotas: int): Pago
-    + crearDebito(monto: BigDecimal, banco: String, cbu: String, titular: String): Pago
-    + crearBilleteraVirtual(monto: BigDecimal, plataforma: String, cvu: String, alias: String): Pago
-}
-
 class ClubMenuUI {
     --
     + iniciar(): void
@@ -280,8 +272,6 @@ ClubMenuUI "1" -- "1" Club : depende de >
 Club "1" -- "0..*" Socio : registra >
 Club "1" -- "0..*" Recurso : administra >
 Club "1" -- "0..*" Reserva : gestiona >
-Club "1" -- "1" PagoFactory : delega creación de pagos >
-PagoFactory ..> Pago : crea >
 Socio "1" -- "0..*" Reserva : realiza >
 Socio "1" -- "1" SituacionAdmin : tiene >
 Socio "1" -- "1" TipoSocio : pertenece a >

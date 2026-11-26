@@ -17,8 +17,8 @@ import java.util.Map;
  * Responsabilidades:
  * 1. Guarda y manipula las colecciones de recursos, socios y reservas para su
  *   consulta y gestión, registrándolos y buscándolos por su identificador.
- *   Crea los recursos y socios a partir de los datos recibidos de la UI, y
- *   delega en PagoFactory la creación de los pagos.
+ *   Crea los recursos, socios y pagos a partir de los datos recibidos de la
+ *   UI, y genera el id único de cada pago.
  * 2. Registra reservas, verificando que el socio esté registrado y habilitado
  *   y que el recurso esté registrado y disponible en la fecha y franja
  *   horaria solicitadas (sin superponerse con las reservas ya registradas),
@@ -35,7 +35,6 @@ import java.util.Map;
  * - Recurso: Club los registra y verifica su disponibilidad.
  * - Socio: Club los registra y verifica si pueden reservar.
  * - Reserva: Club las registra, confirma, cancela, finaliza y consulta.
- * - PagoFactory: Club le delega la creación de los pagos.
  * - Pago: Club lo recibe y se lo pasa a la reserva.
  * - EstadoReserva: Club consulta si una reserva está cancelada.
  * - TipoSocio: Club configura el porcentaje de ajuste de cada categoría.
@@ -47,7 +46,7 @@ public class Club {
     private final Map<Integer, Reserva> reservas = new HashMap<>();
     private final List<Reserva> reservasPorCreacion = new ArrayList<>();
     private int proximoNumeroReserva = 1;
-    private final PagoFactory pagoFactory = new PagoFactory();
+    private int proximoIdPago = 1;
 
     public void registrarQuincho(String codigo, String descripcion, int capacidadMaxima, BigDecimal precioBaseHora,
                                  boolean habilitado, boolean esCerrado, boolean tieneFreezer, int cantidadMesas) {
@@ -96,16 +95,21 @@ public class Club {
                 LocalDate.now(), Habilitado.getInstancia(), tipo));
     }
 
+    // Los pagos reciben un id único generado por el club.
     public Pago crearPagoCredito(BigDecimal monto, String banco, int cuotas) {
-        return pagoFactory.crearCredito(monto, banco, cuotas);
+        return new PagoCredito(siguienteIdPago(), monto, banco, cuotas);
     }
 
     public Pago crearPagoDebito(BigDecimal monto, String banco, String cbu, String titular) {
-        return pagoFactory.crearDebito(monto, banco, cbu, titular);
+        return new PagoDebito(siguienteIdPago(), monto, banco, cbu, titular);
     }
 
     public Pago crearPagoBilleteraVirtual(BigDecimal monto, String plataforma, String cvu, String alias) {
-        return pagoFactory.crearBilleteraVirtual(monto, plataforma, cvu, alias);
+        return new PagoBilleteraVirtual(siguienteIdPago(), monto, plataforma, cvu, alias);
+    }
+
+    private String siguienteIdPago() {
+        return String.valueOf(proximoIdPago++);
     }
 
     // Describe si un socio puede reservar o no dependiendo de su situacion administrativa.
