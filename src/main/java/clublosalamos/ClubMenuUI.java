@@ -171,17 +171,20 @@ public class ClubMenuUI {
     }
 
     private TipoSocio pedirTipoSocio() {
-        System.out.println("Categoría: 1) Activo  2) Adherente  3) Vitalicio");
-        System.out.println("Ingrese la categoría:");
-        switch (leerByte()) {
-            case 1:
-                return Activo.getInstancia();
-            case 2:
-                return Adherente.getInstancia();
-            case 3:
-                return SocioVitalicio.getInstancia();
-            default:
-                throw new IllegalArgumentException("Categoría inválida");
+        // Repite la consulta hasta recibir una categoría válida, para no perder los datos ya ingresados.
+        while (true) {
+            System.out.println("Categoría: 1) Activo  2) Adherente  3) Vitalicio");
+            System.out.println("Ingrese la categoría:");
+            switch (leerByte()) {
+                case 1:
+                    return Activo.getInstancia();
+                case 2:
+                    return Adherente.getInstancia();
+                case 3:
+                    return SocioVitalicio.getInstancia();
+                default:
+                    System.out.println("Categoría inválida");
+            }
         }
     }
 
@@ -251,35 +254,37 @@ public class ClubMenuUI {
     }
 
     private Pago pedirPago(BigDecimal monto) {
-        System.out.println("Medio de pago: 1) Tarjeta de crédito  2) Tarjeta de débito  3) Billetera virtual");
-        System.out.println("Ingrese el medio de pago:");
-        byte medio = leerByte();
+        // Repite la consulta hasta recibir un medio de pago válido, para no perder los datos ya ingresados.
+        while (true) {
+            System.out.println("Medio de pago: 1) Tarjeta de crédito  2) Tarjeta de débito  3) Billetera virtual");
+            System.out.println("Ingrese el medio de pago:");
 
-        switch (medio) {
-            case 1:
-                System.out.println("Banco emisor:");
-                String bancoCredito = input.nextLine();
-                System.out.println("Cantidad de cuotas:");
-                int cuotas = leerInt();
-                return club.crearPagoCredito(monto, bancoCredito, cuotas);
-            case 2:
-                System.out.println("Banco emisor:");
-                String bancoDebito = input.nextLine();
-                System.out.println("CBU:");
-                String cbu = input.nextLine();
-                System.out.println("Titular de la cuenta:");
-                String titular = input.nextLine();
-                return club.crearPagoDebito(monto, bancoDebito, cbu, titular);
-            case 3:
-                System.out.println("Plataforma:");
-                String plataforma = input.nextLine();
-                System.out.println("CVU:");
-                String cvu = input.nextLine();
-                System.out.println("Alias:");
-                String alias = input.nextLine();
-                return club.crearPagoBilleteraVirtual(monto, plataforma, cvu, alias);
-            default:
-                throw new IllegalArgumentException("Medio de pago inválido");
+            switch (leerByte()) {
+                case 1:
+                    System.out.println("Banco emisor:");
+                    String bancoCredito = input.nextLine();
+                    System.out.println("Cantidad de cuotas:");
+                    int cuotas = leerInt();
+                    return club.crearPagoCredito(monto, bancoCredito, cuotas);
+                case 2:
+                    System.out.println("Banco emisor:");
+                    String bancoDebito = input.nextLine();
+                    System.out.println("CBU:");
+                    String cbu = input.nextLine();
+                    System.out.println("Titular de la cuenta:");
+                    String titular = input.nextLine();
+                    return club.crearPagoDebito(monto, bancoDebito, cbu, titular);
+                case 3:
+                    System.out.println("Plataforma:");
+                    String plataforma = input.nextLine();
+                    System.out.println("CVU:");
+                    String cvu = input.nextLine();
+                    System.out.println("Alias:");
+                    String alias = input.nextLine();
+                    return club.crearPagoBilleteraVirtual(monto, plataforma, cvu, alias);
+                default:
+                    System.out.println("Medio de pago inválido");
+            }
         }
     }
 
