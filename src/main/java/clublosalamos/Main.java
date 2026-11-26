@@ -7,14 +7,15 @@ package clublosalamos;
  * Nombre de la clase: Main
  *
  * Responsabilidades:
- * 1. Inicia el programa instanciando la interfaz de usuario.
+ * 1. Inicia el programa creando el modelo, la vista y el controlador.
  *
  * Colaboradores:
- * - ClubMenuUI: Main la instancia y le delega la ejecución.
+ * - ClubController: Main lo crea con el modelo y la vista y le delega la
+ *   ejecución.
  * ============================================================================
  */
 public class Main {
     public static void main(String[] args) {
-        new ClubMenuUI().iniciar();
+        new ClubController(new Club(), new ConsoleView()).iniciar();
     }
 }

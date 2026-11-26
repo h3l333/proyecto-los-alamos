@@ -12,6 +12,7 @@ package clublosalamos;
  *   y si se admiten pagos. Por defecto toda operación es inválida; cada
  *   estado concreto sobrescribe las que permite y devuelve el estado
  *   siguiente (patrón State).
+ * 3. Indica si una reserva en este estado ocupa el recurso. Por defecto sí.
  *
  * Colaboradores:
  * - Reserva: Reserva le delega las transiciones de estado y la validación
@@ -43,5 +44,10 @@ public abstract class EstadoReserva {
 
     public void validarPago() {
         throw new IllegalStateException("No se pueden registrar pagos en una reserva en estado " + nombre);
+    }
+
+    // Por defecto una reserva ocupa el recurso en su franja horaria; los estados que lo liberan lo redefinen.
+    public boolean ocupaRecurso() {
+        return true;
     }
 }

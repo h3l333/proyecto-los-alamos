@@ -12,7 +12,8 @@ package clublosalamos;
  *   implementación a cada situación concreta.
  * 3. Define las transiciones entre situaciones administrativas. Por defecto
  *   toda transición es inválida; cada situación concreta sobrescribe las que
- *   permite y devuelve la situación siguiente (patrón State).
+ *   permite y devuelve la situación siguiente (patrón State). La baja es la
+ *   excepción: se admite desde cualquier situación salvo DadoDeBaja.
  *
  * Colaboradores:
  * - Socio: Socio la consulta para saber si puede reservar.
@@ -41,5 +42,10 @@ public abstract class SituacionAdmin {
 
     public SituacionAdmin habilitar() {
         throw new IllegalStateException("Solo un socio suspendido o moroso puede ser habilitado");
+    }
+
+    // Por defecto un socio puede darse de baja desde cualquier situación; DadoDeBaja lo redefine.
+    public SituacionAdmin darDeBaja() {
+        return DadoDeBaja.getInstancia();
     }
 }

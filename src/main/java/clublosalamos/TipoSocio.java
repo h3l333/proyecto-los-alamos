@@ -12,7 +12,8 @@ import java.math.BigDecimal;
  * 1. Guarda la descripción de una categoría de socio y su porcentaje de
  *   ajuste (negativo = descuento, positivo = recargo).
  * 2. Permite modificar el porcentaje de ajuste desde el sistema.
- * 3. Aplica el ajuste de la categoría a un importe dado.
+ * 3. Aplica el ajuste de la categoría a un importe dado y describe la
+ *   categoría con su porcentaje.
  * 4. Valida el porcentaje de ajuste; cada categoría puede agregar sus
  *   propias restricciones.
  *
@@ -20,6 +21,7 @@ import java.math.BigDecimal;
  * - Socio: Socio la conoce como su categoría.
  * - Reserva: Reserva la consulta para calcular el importe final.
  * - Club: Club modifica su porcentaje de ajuste.
+ * - Importe: TipoSocio redondea el importe ajustado a centavos.
  * ============================================================================
  */
 public abstract class TipoSocio {
@@ -47,7 +49,11 @@ public abstract class TipoSocio {
 
     // El resultado se redondea a centavos para que el importe sea siempre exacto.
     public BigDecimal aplicarAjuste(BigDecimal importe) {
-        return importe.multiply(BigDecimal.ONE.add(porcentajeAjuste))
-                .setScale(Reserva.ESCALA_IMPORTE, Reserva.REDONDEO_IMPORTE);
+        return Importe.redondear(importe.multiply(BigDecimal.ONE.add(porcentajeAjuste)));
+    }
+
+    // Descripción con el porcentaje expresado en puntos porcentuales, por ejemplo "Adherente 20.0%".
+    public String describir() {
+        return String.format("%s %.1f%%", descripcion, porcentajeAjuste.movePointRight(2));
     }
 }

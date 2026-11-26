@@ -6,11 +6,11 @@ import java.math.BigDecimal;
  * ============================================================================
  * CARTA CRC
  * ============================================================================
- * Nombre de la clase: SocioVitalicio
+ * Nombre de la clase: Vitalicio
  *
  * Responsabilidades:
  * 1. Provee acceso a la instancia única en el sistema de la clase
- *   SocioVitalicio, categoría de socio que tiene un descuento en las
+ *   Vitalicio, categoría de socio que tiene un descuento en las
  *   reservas.
  * 2. Solo admite descuento (porcentaje negativo o cero).
  *
@@ -18,14 +18,14 @@ import java.math.BigDecimal;
  * - TipoSocio: Sucede por herencia.
  * ============================================================================
  */
-public class SocioVitalicio extends TipoSocio {
-    private static final SocioVitalicio INSTANCIA = new SocioVitalicio();
+public class Vitalicio extends TipoSocio {
+    private static final Vitalicio INSTANCIA = new Vitalicio();
 
-    private SocioVitalicio() {
+    private Vitalicio() {
         super("Vitalicio", new BigDecimal("-0.5"));
     }
 
-    public static SocioVitalicio getInstancia() {
+    public static Vitalicio getInstancia() {
         return INSTANCIA;
     }
 

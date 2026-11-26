@@ -1,13 +1,9 @@
 package clublosalamos;
 
 import java.math.BigDecimal;
-import java.math.RoundingMode;
-
 import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.time.LocalTime;
 import java.util.ArrayList;
-import java.util.List;
 
 /**
  * ============================================================================
@@ -17,77 +13,99 @@ import java.util.List;
  *
  * Responsabilidades:
  * 1. Guarda los datos de una reserva de un recurso realizada por un socio.
- * 2. Calcula el importe total y registra los pagos, actualizando el
+ * 2. Genera el número único de reserva con una variable de clase.
+ * 3. Calcula el importe total y registra los pagos, actualizando el
  *   importe abonado y el saldo pendiente.
- * 3. Gestiona el estado de la reserva: la confirma, cancela y finaliza,
+ * 4. Gestiona el estado de la reserva: la confirma, cancela y finaliza,
  *   rechazando los cambios de estado inválidos.
- * 4. Provee un resumen de sus datos y el medio de pago utilizado.
- * 5. Valida sus propios datos al crearse: duración, fecha y horario de uso
- *   y que el pago inicial sea el 50% del importe total.
- * 6. Indica si se superpone con otra reserva del mismo recurso.
+ * 5. Provee un resumen de sus datos y los medios de pago utilizados.
+ * 6. Valida sus propios datos al crearse: duración, fecha y hora de uso,
+ *   disponibilidad del recurso y que el pago inicial sea el 50% del importe
+ *   total.
+ * 7. Indica si ocupa el recurso en una franja horaria dada.
  *
  * Colaboradores:
  * - Socio: Es el socio solicitante de la reserva.
- * - Recurso: Es el recurso reservado y provee su precio base por hora.
+ * - Recurso: Es el recurso reservado; provee su precio base por hora y su
+ *   disponibilidad.
  * - Pago: Reserva registra los pagos realizados.
  * - EstadoReserva: Reserva lo conoce como su estado y le delega las
- *   transiciones y la validación de pagos.
+ *   transiciones, la validación de pagos y si ocupa el recurso.
+ * - TipoSocio: Reserva le pide aplicar el ajuste de la categoría del socio.
+ * - Importe: Reserva redondea el pago inicial a centavos.
  * ============================================================================
  */
 public class Reserva {
+    // Variable de clase: un único contador compartido por todas las reservas del sistema.
+    private static int proximoNumero = 1;
+    private static final BigDecimal PORCENTAJE_PAGO_INICIAL = new BigDecimal("0.5");
+
     private final int numeroReserva;
     private final LocalDateTime fechaCreacion;
     private final Socio socio;
     private final Recurso recurso;
     private final LocalDate fechaUso;
-    private final LocalTime horarioInicio;
+    private final int horaInicio;
     private final int duracionHoras;
     private final BigDecimal importeTotal;
-    private final List<Pago> pagos = new ArrayList<>();
-    private BigDecimal importeAbonado = BigDecimal.ZERO;
+    private final ArrayList<Pago> pagos;
+    private BigDecimal importeAbonado;
     private BigDecimal saldoPendiente;
     private EstadoReserva estado;
 
-    // Los importes se manejan en centavos: todo cálculo que genere decimales se redondea con esta regla.
-    static final int ESCALA_IMPORTE = 2;
-    static final RoundingMode REDONDEO_IMPORTE = RoundingMode.HALF_UP;
-    private static final BigDecimal PORCENTAJE_PAGO_INICIAL = new BigDecimal("0.5");
-
-    public Reserva(int numeroReserva, Socio socio, Recurso recurso, LocalDate fechaUso, LocalTime horarioInicio,
-                    int duracionHoras, Pago pagoInicial) {
-        validarDuracion(duracionHoras);
-        if (fechaUso == null || horarioInicio == null) {
-            throw new IllegalArgumentException("La fecha y el horario de uso son obligatorios");
+    // Todo se valida antes de asignar el número: si algo falla, el número no se consume.
+    public Reserva(Socio socio, Recurso recurso, LocalDate fechaUso, int horaInicio, int duracionHoras,
+                   Pago pagoInicial) {
+        validarSolicitud(recurso, fechaUso, horaInicio, duracionHoras);
+        if (pagoInicial == null) {
+            throw new IllegalArgumentException("El pago inicial es obligatorio");
         }
-        if (fechaUso.atTime(horarioInicio).isBefore(LocalDateTime.now())) {
-            throw new IllegalArgumentException("La fecha y el horario de uso no pueden estar en el pasado");
+        BigDecimal total = calcularImporteTotal(socio, recurso, duracionHoras);
+        BigDecimal pagoEsperado = calcularPagoInicial(total);
+        if (pagoInicial.getMonto().compareTo(pagoEsperado) != 0) {
+            throw new IllegalArgumentException("El pago inicial debe ser el 50% del importe total: " + pagoEsperado);
         }
-        this.numeroReserva = numeroReserva;
+        this.numeroReserva = proximoNumero++;
         this.fechaCreacion = LocalDateTime.now();
         this.socio = socio;
         this.recurso = recurso;
         this.fechaUso = fechaUso;
-        this.horarioInicio = horarioInicio;
+        this.horaInicio = horaInicio;
         this.duracionHoras = duracionHoras;
-        this.importeTotal = calcularImporteTotal(socio, recurso, duracionHoras);
-        BigDecimal pagoEsperado = calcularPagoInicial(importeTotal);
-        if (pagoInicial.getMonto().compareTo(pagoEsperado) != 0) {
-            throw new IllegalArgumentException("El pago inicial debe ser el 50% del importe total: " + pagoEsperado);
-        }
-        this.saldoPendiente = importeTotal;
+        this.importeTotal = total;
+        this.pagos = new ArrayList<Pago>();
+        this.importeAbonado = BigDecimal.ZERO;
+        this.saldoPendiente = total;
         this.estado = PagoParcial.getInstancia();
         registrarPago(pagoInicial);
     }
 
     // Importe del pago inicial (50% del total) que corresponde a una reserva con estos datos.
-    static BigDecimal calcularPagoInicial(Socio socio, Recurso recurso, int duracionHoras) {
-        validarDuracion(duracionHoras);
+    // Valida la solicitud antes, para que el socio no cargue un pago de una reserva imposible.
+    public static BigDecimal calcularPagoInicial(Socio socio, Recurso recurso, LocalDate fechaUso, int horaInicio,
+                                                 int duracionHoras) {
+        validarSolicitud(recurso, fechaUso, horaInicio, duracionHoras);
         return calcularPagoInicial(calcularImporteTotal(socio, recurso, duracionHoras));
     }
 
-    private static void validarDuracion(int duracionHoras) {
+    private static void validarSolicitud(Recurso recurso, LocalDate fechaUso, int horaInicio, int duracionHoras) {
         if (duracionHoras <= 0) {
             throw new IllegalArgumentException("La duración debe ser mayor a cero");
+        }
+        if (fechaUso == null) {
+            throw new IllegalArgumentException("La fecha de uso es obligatoria");
+        }
+        if (horaInicio < 0 || horaInicio > 23) {
+            throw new IllegalArgumentException("La hora de inicio debe estar entre 0 y 23");
+        }
+        if (horaInicio + duracionHoras > 24) {
+            throw new IllegalArgumentException("La reserva debe terminar dentro del mismo día");
+        }
+        if (fechaUso.atTime(horaInicio, 0).isBefore(LocalDateTime.now())) {
+            throw new IllegalArgumentException("La fecha y la hora de uso no pueden estar en el pasado");
+        }
+        if (!recurso.estaDisponible(fechaUso, horaInicio, duracionHoras)) {
+            throw new IllegalStateException("El recurso no está disponible en la fecha y horario solicitados");
         }
     }
 
@@ -97,11 +115,11 @@ public class Reserva {
 
     // Si el 50% cae en medio centavo se redondea. El saldo pendiente absorbe la diferencia.
     private static BigDecimal calcularPagoInicial(BigDecimal importeTotal) {
-        return importeTotal.multiply(PORCENTAJE_PAGO_INICIAL).setScale(ESCALA_IMPORTE, REDONDEO_IMPORTE);
+        return Importe.redondear(importeTotal.multiply(PORCENTAJE_PAGO_INICIAL));
     }
 
     // Solo se admiten pagos si el estado lo permite y el monto no supera el saldo pendiente.
-    public void registrarPago(Pago pago) {
+    private void registrarPago(Pago pago) {
         estado.validarPago();
         if (pago.getMonto().compareTo(saldoPendiente) > 0) {
             throw new IllegalArgumentException("El pago supera el saldo pendiente: " + saldoPendiente);
@@ -119,49 +137,68 @@ public class Reserva {
             throw new IllegalArgumentException("El pago debe ser igual al saldo pendiente: " + saldoPendiente);
         }
         registrarPago(pagoSaldo);
-        cambiarEstado(siguiente);
+        estado = siguiente;
     }
 
     public void cancelar() {
-        cambiarEstado(estado.cancelar());
+        estado = estado.cancelar();
     }
 
-    // Solo puede finalizarse una vez que llegó la fecha y el horario de uso.
+    // Solo puede finalizarse una vez que llegó la fecha y la hora de uso.
     public void finalizar() {
         EstadoReserva siguiente = estado.finalizar();
-        if (LocalDateTime.now().isBefore(fechaUso.atTime(horarioInicio))) {
-            throw new IllegalStateException("Todavía no llegó la fecha y el horario de uso de la reserva");
+        if (LocalDateTime.now().isBefore(fechaUso.atTime(horaInicio, 0))) {
+            throw new IllegalStateException("Todavía no llegó la fecha y la hora de uso de la reserva");
         }
-        cambiarEstado(siguiente);
+        estado = siguiente;
     }
 
-    // Dos reservas se superponen si son del mismo recurso y sus franjas horarias se pisan.
-    public boolean seSuperponeCon(Reserva otra) {
-        if (!recurso.getCodigo().equals(otra.recurso.getCodigo())) {
+    // Ocupa la franja si su estado ocupa el recurso y los horarios se pisan.
+    public boolean ocupaFranja(LocalDate fecha, int hora, int horas) {
+        if (!estado.ocupaRecurso()) {
             return false;
         }
-        LocalDateTime inicio = fechaUso.atTime(horarioInicio);
+        LocalDateTime inicio = fechaUso.atTime(horaInicio, 0);
         LocalDateTime fin = inicio.plusHours(duracionHoras);
-        LocalDateTime otroInicio = otra.fechaUso.atTime(otra.horarioInicio);
-        LocalDateTime otroFin = otroInicio.plusHours(otra.duracionHoras);
+        LocalDateTime otroInicio = fecha.atTime(hora, 0);
+        LocalDateTime otroFin = otroInicio.plusHours(horas);
         return inicio.isBefore(otroFin) && otroInicio.isBefore(fin);
     }
 
-    private void cambiarEstado(EstadoReserva nuevo) {
-        this.estado = nuevo;
+    public boolean esDelSocio(int numeroSocio) {
+        return socio.getNumeroSocio() == numeroSocio;
     }
 
-    // El medio de pago de la reserva es el del pago inicial, que siempre existe.
-    public String getMedioPago() {
-        return pagos.get(0).getMedioPago();
+    public boolean esDelRecurso(String codigoRecurso) {
+        return recurso.getCodigo().equals(codigoRecurso);
+    }
+
+    public boolean esDelDia(LocalDate fecha) {
+        return fechaUso.equals(fecha);
+    }
+
+    public String getCorreoSocio() {
+        return socio.getCorreoElectronico();
+    }
+
+    // Lista los medios de todos los pagos, porque el saldo puede abonarse con otro medio.
+    private String describirMediosPago() {
+        String medios = "";
+        for (Pago pago : pagos) {
+            if (!medios.isEmpty()) {
+                medios = medios + ", ";
+            }
+            medios = medios + pago.getMedioPago();
+        }
+        return medios;
     }
 
     public String resumen() {
-        return String.format("Reserva #%d | Recurso: %s (%s) | Socio: %d - %s %s | Fecha de uso: %s %s (%d h) | "
-                        + "Total: $%.2f | Abonado: $%.2f | Saldo: $%.2f | Medio de pago: %s | Estado: %s",
+        return String.format("Reserva #%d | Recurso: %s (%s) | Socio: %d - %s %s | Fecha de uso: %s %02d:00 (%d h) | "
+                        + "Total: $%.2f | Abonado: $%.2f | Saldo: $%.2f | Medios de pago: %s | Estado: %s",
                 numeroReserva, recurso.getCodigo(), recurso.devolverTipo(), socio.getNumeroSocio(),
-                socio.getNombre(), socio.getApellido(), fechaUso, horarioInicio, duracionHoras,
-                importeTotal, importeAbonado, saldoPendiente, getMedioPago(), estado.getNombre());
+                socio.getNombre(), socio.getApellido(), fechaUso, horaInicio, duracionHoras,
+                importeTotal, importeAbonado, saldoPendiente, describirMediosPago(), estado.getNombre());
     }
 
     public int getNumeroReserva() {
@@ -184,8 +221,8 @@ public class Reserva {
         return fechaUso;
     }
 
-    public LocalTime getHorarioInicio() {
-        return horarioInicio;
+    public int getHoraInicio() {
+        return horaInicio;
     }
 
     public int getDuracionHoras() {

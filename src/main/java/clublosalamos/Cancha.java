@@ -10,6 +10,7 @@ import java.math.BigDecimal;
  *
  * Responsabilidades:
  * 1. Retorna los datos asociados a un recurso de tipo `Cancha`.
+ * 2. Redefine el detalle del recurso agregando sus datos propios.
  *
  * Colaboradores:
  * - Recurso: Sucede por herencia.
@@ -29,6 +30,13 @@ public class Cancha extends Recurso {
     @Override
     public String devolverTipo() {
         return "Cancha";
+    }
+
+    @Override
+    public String getDetalle() {
+        return super.getDetalle()
+                + " | Deporte: " + tipoDeporte
+                + " | Iluminación: " + (tieneIluminacion ? "sí" : "no");
     }
 
     public String getTipoDeporte() {

@@ -10,6 +10,7 @@ import java.math.BigDecimal;
  *
  * Responsabilidades:
  * 1. Retorna los datos asociados a un recurso de tipo `Quincho`.
+ * 2. Redefine el detalle del recurso agregando sus datos propios.
  *
  * Colaboradores:
  * - Recurso: Sucede por herencia.
@@ -31,6 +32,14 @@ public class Quincho extends Recurso {
     @Override
     public String devolverTipo() {
         return "Quincho";
+    }
+
+    @Override
+    public String getDetalle() {
+        return super.getDetalle()
+                + " | Cerrado: " + (esCerrado ? "sí" : "no")
+                + " | Freezer: " + (tieneFreezer ? "sí" : "no")
+                + " | Mesas: " + cantidadMesas;
     }
 
     public boolean isEsCerrado() {

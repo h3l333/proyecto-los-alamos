@@ -9,12 +9,13 @@ import java.time.LocalDate;
  * Nombre de la clase: Socio
  *
  * Responsabilidades:
- * 1. Guarda los datos personales y administrativos de un socio del club.
+ * 1. Guarda los datos personales y administrativos de un socio del club y
+ *   los valida al crearse.
  * 2. Indica si el socio puede realizar reservas según su situación
- *   administrativa.
- * 3. Permite modificar su situación administrativa.
- * 4. Cambia de situación administrativa (suspender, marcar moroso, habilitar)
- *   delegando la validación de la transición en su situación actual.
+ *   administrativa, y describe esa situación.
+ * 3. Cambia de situación administrativa (suspender, marcar moroso, habilitar,
+ *   dar de baja) delegando la validación de la transición en su situación
+ *   actual.
  *
  * Colaboradores:
  * - SituacionAdmin: Socio le consulta si puede reservar y le delega las
@@ -32,10 +33,16 @@ public class Socio {
     private final String correoElectronico;
     private final LocalDate fechaIngreso;
     private SituacionAdmin situacionAdministrativa;
-    private TipoSocio tipo;
+    private final TipoSocio tipo;
 
     public Socio(int numeroSocio, String nombre, String apellido, String documento, String telefono,
-                    String correoElectronico, LocalDate fechaIngreso, SituacionAdmin situacionAdministrativa, TipoSocio tipo) {
+                 String correoElectronico, LocalDate fechaIngreso, SituacionAdmin situacionAdministrativa, TipoSocio tipo) {
+        if (numeroSocio <= 0) {
+            throw new IllegalArgumentException("El número de socio debe ser mayor a cero");
+        }
+        if (esVacio(nombre) || esVacio(apellido) || esVacio(documento)) {
+            throw new IllegalArgumentException("El nombre, el apellido y el documento son obligatorios");
+        }
         this.numeroSocio = numeroSocio;
         this.nombre = nombre;
         this.apellido = apellido;
@@ -47,8 +54,16 @@ public class Socio {
         this.tipo = tipo;
     }
 
+    private static boolean esVacio(String texto) {
+        return texto == null || texto.isEmpty();
+    }
+
     public boolean puedeReservar() {
         return situacionAdministrativa.puedeReservar();
+    }
+
+    public String describirSituacion() {
+        return situacionAdministrativa.getSituacionAdmin();
     }
 
     public void suspender() {
@@ -61,6 +76,10 @@ public class Socio {
 
     public void habilitar() {
         situacionAdministrativa = situacionAdministrativa.habilitar();
+    }
+
+    public void darDeBaja() {
+        situacionAdministrativa = situacionAdministrativa.darDeBaja();
     }
 
     public int getNumeroSocio() {
@@ -97,9 +116,5 @@ public class Socio {
 
     public SituacionAdmin getSituacionAdministrativa() {
         return situacionAdministrativa;
-    }
-
-    public void setSituacionAdmin(SituacionAdmin situacionAdministrativa) {
-        this.situacionAdministrativa = situacionAdministrativa;
     }
 }

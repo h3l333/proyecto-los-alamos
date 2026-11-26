@@ -13,7 +13,8 @@ import java.math.BigDecimal;
  *   CVU y alias.
  *
  * Colaboradores:
- * - Pago: Sucede por herencia.
+ * - Pago: Sucede por herencia. Se crea solo mediante los factory methods
+ *   de Pago (constructor de visibilidad de paquete).
  * ============================================================================
  */
 public class PagoBilleteraVirtual extends Pago {
@@ -21,8 +22,8 @@ public class PagoBilleteraVirtual extends Pago {
     private final String cvu;
     private final String alias;
 
-    public PagoBilleteraVirtual(String idPago, BigDecimal monto, String nombrePlataforma, String cvu, String alias) {
-        super(idPago, monto);
+    PagoBilleteraVirtual(BigDecimal monto, String nombrePlataforma, String cvu, String alias) {
+        super(monto);
         this.nombrePlataforma = nombrePlataforma;
         this.cvu = cvu;
         this.alias = alias;

@@ -10,6 +10,7 @@ import java.math.BigDecimal;
  *
  * Responsabilidades:
  * 1. Retorna los datos asociados a un recurso de tipo `Salon`.
+ * 2. Redefine el detalle del recurso agregando sus datos propios.
  *
  * Colaboradores:
  * - Recurso: Sucede por herencia.
@@ -29,6 +30,13 @@ public class Salon extends Recurso {
     @Override
     public String devolverTipo() {
         return "Salon";
+    }
+
+    @Override
+    public String getDetalle() {
+        return super.getDetalle()
+                + " | Aire acondicionado: " + (tieneAireAcondicionado ? "sí" : "no")
+                + " | Escenario: " + (poseeEscenario ? "sí" : "no");
     }
 
     public boolean isTieneAireAcondicionado() {

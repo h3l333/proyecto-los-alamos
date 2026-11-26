@@ -13,7 +13,8 @@ import java.math.BigDecimal;
  *   emisor, CBU y titular de la cuenta.
  *
  * Colaboradores:
- * - Pago: Sucede por herencia.
+ * - Pago: Sucede por herencia. Se crea solo mediante los factory methods
+ *   de Pago (constructor de visibilidad de paquete).
  * ============================================================================
  */
 public class PagoDebito extends Pago {
@@ -21,8 +22,8 @@ public class PagoDebito extends Pago {
     private final String cbu;
     private final String titularCuenta;
 
-    public PagoDebito(String idPago, BigDecimal monto, String bancoEmisor, String cbu, String titularCuenta) {
-        super(idPago, monto);
+    PagoDebito(BigDecimal monto, String bancoEmisor, String cbu, String titularCuenta) {
+        super(monto);
         this.bancoEmisor = bancoEmisor;
         this.cbu = cbu;
         this.titularCuenta = titularCuenta;

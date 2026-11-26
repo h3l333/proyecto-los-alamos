@@ -10,6 +10,7 @@ import java.math.BigDecimal;
  *
  * Responsabilidades:
  * 1. Retorna los datos asociados a un recurso de tipo `EspacioRecreacion`.
+ * 2. Redefine el detalle del recurso agregando sus datos propios.
  *
  * Colaboradores:
  * - Recurso: Sucede por herencia.
@@ -27,6 +28,11 @@ public class EspacioRecreacion extends Recurso {
     @Override
     public String devolverTipo() {
         return "EspacioRecreacion";
+    }
+
+    @Override
+    public String getDetalle() {
+        return super.getDetalle() + " | Tipo de espacio: " + tipoEspacio;
     }
 
     public String getTipoEspacio() {
