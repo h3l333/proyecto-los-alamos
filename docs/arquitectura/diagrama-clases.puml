@@ -205,15 +205,23 @@ class PagoBilleteraVirtual extends Pago {
 class Club {
     - reservasPorCreacion: Reserva[]
     - proximoNumeroReserva: int
+    - proximoIdPago: int
     --
-    + registrarSocio(socio: Socio): void
+    + registrarSocio(numeroSocio: int, nombre: String, apellido: String, documento: String, telefono: String, correo: String, tipo: TipoSocio): void
     + obtenerSocio(numeroSocio: int): Socio
     + obtenerReserva(numeroReserva: int): Reserva
     + darSocioDeBaja(numeroSocio: int): void
     + suspenderSocio(numeroSocio: int): void
     + marcarSocioMoroso(numeroSocio: int): void
     + habilitarSocio(numeroSocio: int): void
-    + registrarRecurso(recurso: Recurso): void
+    + registrarQuincho(codigo: String, descripcion: String, capacidadMaxima: int, precioBaseHora: BigDecimal, habilitado: boolean, esCerrado: boolean, tieneFreezer: boolean, cantidadMesas: int): void
+    + registrarSalon(codigo: String, descripcion: String, capacidadMaxima: int, precioBaseHora: BigDecimal, habilitado: boolean, tieneAireAcondicionado: boolean, poseeEscenario: boolean): void
+    + registrarCancha(codigo: String, descripcion: String, capacidadMaxima: int, precioBaseHora: BigDecimal, habilitado: boolean, tipoDeporte: String, tieneIluminacion: boolean): void
+    + registrarParrilla(codigo: String, descripcion: String, capacidadMaxima: int, precioBaseHora: BigDecimal, habilitado: boolean, capacidadKgCarne: double): void
+    + registrarEspacioRecreacion(codigo: String, descripcion: String, capacidadMaxima: int, precioBaseHora: BigDecimal, habilitado: boolean, tipoEspacio: String): void
+    + crearPagoCredito(monto: BigDecimal, banco: String, cuotas: int): Pago
+    + crearPagoDebito(monto: BigDecimal, banco: String, cbu: String, titular: String): Pago
+    + crearPagoBilleteraVirtual(monto: BigDecimal, plataforma: String, cvu: String, alias: String): Pago
     + configurarAjusteCategoriaSocioActivo(porcentaje: BigDecimal): void
     + configurarAjusteCategoriaSocioVitalicio(porcentaje: BigDecimal): void
     + configurarAjusteCategoriaSocioAdherente(porcentaje: BigDecimal): void

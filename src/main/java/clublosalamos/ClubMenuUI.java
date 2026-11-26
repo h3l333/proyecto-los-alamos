@@ -19,16 +19,15 @@ import java.util.Scanner;
  *   negocio a la clase Club.
  * 2. Captura las excepciones lanzadas por Club y muestra su mensaje al
  *   usuario.
- * 3. Construye los recursos, socios y pagos a partir de los datos ingresados.
+ * 3. Solicita los datos de recursos, socios y pagos y se los pasa a Club, que
+ *   los construye.
  * 4. Muestra el email simulado de confirmación de reserva y el informe de
  *   reservas del día.
  *
  * Colaboradores:
  * - Club: Club gestiona las interacciones entre los objetos representativos
  *   del dominio.
- * - Recurso: ClubMenuUI crea sus subtipos a partir de los datos ingresados.
- * - Socio: ClubMenuUI lo crea al registrar un socio.
- * - Pago: ClubMenuUI crea el pago concreto según el medio elegido.
+ * - Pago: ClubMenuUI recibe el pago creado por Club y lo pasa a la reserva.
  * - Reserva: ClubMenuUI muestra su resumen.
  * - TipoSocio: ClubMenuUI consulta los porcentajes de cada categoría.
  * ============================================================================
@@ -36,7 +35,6 @@ import java.util.Scanner;
 public class ClubMenuUI {
     private final Club club = new Club();
     private final Scanner input = new Scanner(System.in);
-    private int proximoIdPago = 1;
 
     public void iniciar() {
         byte opcion;
@@ -89,11 +87,7 @@ public class ClubMenuUI {
         try {
             switch(opcion) {
                 case 1:
-                    Recurso recurso = pedirDatosRecurso();
-                    if (recurso != null) {
-                        club.registrarRecurso(recurso);
-                        System.out.println("Recurso agregado correctamente.");
-                    }
+                    registrarRecurso();
                     break;
                 case 2:
                     registrarSocio();
@@ -170,8 +164,7 @@ public class ClubMenuUI {
         System.out.println("Correo electrónico:");
         String correo = input.nextLine();
         TipoSocio tipo = pedirTipoSocio();
-        club.registrarSocio(new Socio(numeroSocio, nombre, apellido, documento, telefono, correo,
-                LocalDate.now(), Habilitado.getInstancia(), tipo));
+        club.registrarSocio(numeroSocio, nombre, apellido, documento, telefono, correo, tipo);
         System.out.println("Socio registrado correctamente.");
     }
 
@@ -259,7 +252,6 @@ public class ClubMenuUI {
         System.out.println("Medio de pago: 1) Tarjeta de crédito  2) Tarjeta de débito  3) Billetera virtual");
         System.out.println("Ingrese el medio de pago:");
         byte medio = leerByte();
-        String idPago = String.valueOf(proximoIdPago++);
 
         switch (medio) {
             case 1:
@@ -267,7 +259,7 @@ public class ClubMenuUI {
                 String bancoCredito = input.nextLine();
                 System.out.println("Cantidad de cuotas:");
                 int cuotas = leerInt();
-                return new PagoCredito(idPago, monto, bancoCredito, cuotas);
+                return club.crearPagoCredito(monto, bancoCredito, cuotas);
             case 2:
                 System.out.println("Banco emisor:");
                 String bancoDebito = input.nextLine();
@@ -275,7 +267,7 @@ public class ClubMenuUI {
                 String cbu = input.nextLine();
                 System.out.println("Titular de la cuenta:");
                 String titular = input.nextLine();
-                return new PagoDebito(idPago, monto, bancoDebito, cbu, titular);
+                return club.crearPagoDebito(monto, bancoDebito, cbu, titular);
             case 3:
                 System.out.println("Plataforma:");
                 String plataforma = input.nextLine();
@@ -283,7 +275,7 @@ public class ClubMenuUI {
                 String cvu = input.nextLine();
                 System.out.println("Alias:");
                 String alias = input.nextLine();
-                return new PagoBilleteraVirtual(idPago, monto, plataforma, cvu, alias);
+                return club.crearPagoBilleteraVirtual(monto, plataforma, cvu, alias);
             default:
                 throw new IllegalArgumentException("Medio de pago inválido");
         }
@@ -363,7 +355,7 @@ public class ClubMenuUI {
         }
     }
 
-    private Recurso pedirDatosRecurso() {
+    private void registrarRecurso() {
         System.out.println("Tipo de recurso:");
         System.out.println("1) Quincho");
         System.out.println("2) Salon");
@@ -392,36 +384,42 @@ public class ClubMenuUI {
                 boolean tieneFreezer = leerBooleano();
                 System.out.println("Cantidad de mesas:");
                 int cantidadMesas = leerInt();
-                return new Quincho(codigo, descripcion, capacidadMaxima, precioBaseHora, habilitado,
+                club.registrarQuincho(codigo, descripcion, capacidadMaxima, precioBaseHora, habilitado,
                         esCerrado, tieneFreezer, cantidadMesas);
+                break;
             case 2:
                 System.out.println("Tiene aire acondicionado (s/n):");
                 boolean tieneAireAcondicionado = leerBooleano();
                 System.out.println("Posee escenario (s/n):");
                 boolean poseeEscenario = leerBooleano();
-                return new Salon(codigo, descripcion, capacidadMaxima, precioBaseHora, habilitado,
+                club.registrarSalon(codigo, descripcion, capacidadMaxima, precioBaseHora, habilitado,
                         tieneAireAcondicionado, poseeEscenario);
+                break;
             case 3:
                 System.out.println("Tipo de deporte:");
                 String tipoDeporte = input.nextLine();
                 System.out.println("Tiene iluminacion (s/n):");
                 boolean tieneIluminacion = leerBooleano();
-                return new Cancha(codigo, descripcion, capacidadMaxima, precioBaseHora, habilitado,
+                club.registrarCancha(codigo, descripcion, capacidadMaxima, precioBaseHora, habilitado,
                         tipoDeporte, tieneIluminacion);
+                break;
             case 4:
                 System.out.println("Capacidad en kg de carne:");
                 double capacidadKgCarne = leerDouble();
-                return new Parrilla(codigo, descripcion, capacidadMaxima, precioBaseHora, habilitado,
+                club.registrarParrilla(codigo, descripcion, capacidadMaxima, precioBaseHora, habilitado,
                         capacidadKgCarne);
+                break;
             case 5:
                 System.out.println("Tipo de espacio:");
                 String tipoEspacio = input.nextLine();
-                return new EspacioRecreacion(codigo, descripcion, capacidadMaxima, precioBaseHora, habilitado,
+                club.registrarEspacioRecreacion(codigo, descripcion, capacidadMaxima, precioBaseHora, habilitado,
                         tipoEspacio);
+                break;
             default:
                 System.out.println("Tipo de recurso invalido");
-                return null;
+                return;
         }
+        System.out.println("Recurso agregado correctamente.");
     }
 
     private int leerInt() {

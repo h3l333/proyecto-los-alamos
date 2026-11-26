@@ -17,6 +17,8 @@ import java.util.Map;
  * Responsabilidades:
  * 1. Guarda y manipula las colecciones de recursos, socios y reservas para su
  *   consulta y gestión, registrándolos y buscándolos por su identificador.
+ *   Crea los recursos, socios y pagos a partir de los datos recibidos de la
+ *   UI, y genera el id único de cada pago.
  * 2. Registra reservas, verificando que el socio esté registrado y habilitado
  *   y que el recurso esté registrado y disponible en la fecha y franja
  *   horaria solicitadas (sin superponerse con las reservas ya registradas),
@@ -44,19 +46,70 @@ public class Club {
     private final Map<Integer, Reserva> reservas = new HashMap<>();
     private final List<Reserva> reservasPorCreacion = new ArrayList<>();
     private int proximoNumeroReserva = 1;
+    private int proximoIdPago = 1;
 
-    public void registrarRecurso(Recurso recurso) {
+    public void registrarQuincho(String codigo, String descripcion, int capacidadMaxima, BigDecimal precioBaseHora,
+                                 boolean habilitado, boolean esCerrado, boolean tieneFreezer, int cantidadMesas) {
+        registrarRecurso(new Quincho(codigo, descripcion, capacidadMaxima, precioBaseHora, habilitado,
+                esCerrado, tieneFreezer, cantidadMesas));
+    }
+
+    public void registrarSalon(String codigo, String descripcion, int capacidadMaxima, BigDecimal precioBaseHora,
+                               boolean habilitado, boolean tieneAireAcondicionado, boolean poseeEscenario) {
+        registrarRecurso(new Salon(codigo, descripcion, capacidadMaxima, precioBaseHora, habilitado,
+                tieneAireAcondicionado, poseeEscenario));
+    }
+
+    public void registrarCancha(String codigo, String descripcion, int capacidadMaxima, BigDecimal precioBaseHora,
+                                boolean habilitado, String tipoDeporte, boolean tieneIluminacion) {
+        registrarRecurso(new Cancha(codigo, descripcion, capacidadMaxima, precioBaseHora, habilitado,
+                tipoDeporte, tieneIluminacion));
+    }
+
+    public void registrarParrilla(String codigo, String descripcion, int capacidadMaxima, BigDecimal precioBaseHora,
+                                  boolean habilitado, double capacidadKgCarne) {
+        registrarRecurso(new Parrilla(codigo, descripcion, capacidadMaxima, precioBaseHora, habilitado,
+                capacidadKgCarne));
+    }
+
+    public void registrarEspacioRecreacion(String codigo, String descripcion, int capacidadMaxima,
+                                           BigDecimal precioBaseHora, boolean habilitado, String tipoEspacio) {
+        registrarRecurso(new EspacioRecreacion(codigo, descripcion, capacidadMaxima, precioBaseHora, habilitado,
+                tipoEspacio));
+    }
+
+    private void registrarRecurso(Recurso recurso) {
         if (recursos.containsKey(recurso.getCodigo())) {
             throw new IllegalArgumentException("Ya existe un recurso con el código " + recurso.getCodigo());
         }
         recursos.put(recurso.getCodigo(), recurso);
     }
 
-    public void registrarSocio(Socio socio) {
-        if (socios.containsKey(socio.getNumeroSocio())) {
-            throw new IllegalArgumentException("Ya existe un socio con el número " + socio.getNumeroSocio());
+    // El socio se registra habilitado y con la fecha de alta del día.
+    public void registrarSocio(int numeroSocio, String nombre, String apellido, String documento, String telefono,
+                               String correo, TipoSocio tipo) {
+        if (socios.containsKey(numeroSocio)) {
+            throw new IllegalArgumentException("Ya existe un socio con el número " + numeroSocio);
         }
-        socios.put(socio.getNumeroSocio(), socio);
+        socios.put(numeroSocio, new Socio(numeroSocio, nombre, apellido, documento, telefono, correo,
+                LocalDate.now(), Habilitado.getInstancia(), tipo));
+    }
+
+    // Los pagos reciben un id único generado por el club.
+    public Pago crearPagoCredito(BigDecimal monto, String banco, int cuotas) {
+        return new PagoCredito(siguienteIdPago(), monto, banco, cuotas);
+    }
+
+    public Pago crearPagoDebito(BigDecimal monto, String banco, String cbu, String titular) {
+        return new PagoDebito(siguienteIdPago(), monto, banco, cbu, titular);
+    }
+
+    public Pago crearPagoBilleteraVirtual(BigDecimal monto, String plataforma, String cvu, String alias) {
+        return new PagoBilleteraVirtual(siguienteIdPago(), monto, plataforma, cvu, alias);
+    }
+
+    private String siguienteIdPago() {
+        return String.valueOf(proximoIdPago++);
     }
 
     // Describe si un socio puede reservar o no dependiendo de su situacion administrativa.
