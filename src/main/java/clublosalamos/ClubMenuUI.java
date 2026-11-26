@@ -27,7 +27,9 @@ import java.util.Scanner;
  * Colaboradores:
  * - Club: Club gestiona las interacciones entre los objetos representativos
  *   del dominio.
- * - Pago: ClubMenuUI recibe el pago creado por Club y lo pasa a la reserva.
+ * - Pago: ClubMenuUI delega a Club el cálculo del pago inicial y, una vez
+ *   ingresados por el usuario los datos del pago, se lo entrega a Club para
+ *   registrar la reserva.
  * - Reserva: ClubMenuUI muestra su resumen.
  * - TipoSocio: ClubMenuUI consulta los porcentajes de cada categoría.
  * ============================================================================
