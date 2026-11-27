@@ -252,6 +252,7 @@ public class ClubController {
         int numeroReserva = vista.pedirEntero("Número de reserva: ");
         BigDecimal saldo = modelo.consultarSaldoPendiente(numeroReserva);
         vista.mostrarMensaje("Saldo pendiente a abonar: $" + saldo);
+        // Java evalúa los argumentos antes de invocar el método modelo.confirmarReserva.
         modelo.confirmarReserva(numeroReserva, pedirPago(saldo));
         vista.mostrarMensaje("Reserva confirmada.");
     }
