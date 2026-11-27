@@ -35,7 +35,7 @@ import java.util.Hashtable;
  * - Socio: Club los registra y les delega los cambios de situación.
  * - Reserva: Club las registra, confirma, cancela, finaliza y consulta.
  * - Pago: Club lo recibe y se lo pasa a la reserva.
- * - TipoSocio: Club configura y describe el porcentaje de ajuste de cada
+ * - Categoria: Club configura y describe el porcentaje de ajuste de cada
  *   categoría.
  * ============================================================================
  */
@@ -92,12 +92,12 @@ public class Club {
 
     // El socio se registra habilitado y con la fecha de alta del día.
     public void registrarSocio(int numeroSocio, String nombre, String apellido, String documento, String telefono,
-                               String correo, TipoSocio tipo) {
+                               String correo, Categoria categoria) {
         if (socios.containsKey(numeroSocio)) {
             throw new IllegalArgumentException("Ya existe un socio con el número " + numeroSocio);
         }
         socios.put(numeroSocio, new Socio(numeroSocio, nombre, apellido, documento, telefono, correo,
-                LocalDate.now(), Habilitado.getInstancia(), tipo));
+                LocalDate.now(), Habilitado.getInstancia(), categoria));
     }
 
     // Describe si un socio puede reservar o no dependiendo de su situacion administrativa.
@@ -200,8 +200,8 @@ public class Club {
 
     // El porcentaje se expresa en puntos porcentuales: positivo = recargo, negativo = descuento.
     // Cada categoría valida por polimorfismo qué signo admite.
-    public void configurarAjusteCategoria(TipoSocio tipo, BigDecimal porcentaje) {
-        tipo.setPorcentajeAjuste(porcentaje.movePointLeft(2));
+    public void configurarAjusteCategoria(Categoria categoria, BigDecimal porcentaje) {
+        categoria.setPorcentajeAjuste(porcentaje.movePointLeft(2));
     }
 
     public String describirCategorias() {

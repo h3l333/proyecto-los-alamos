@@ -14,10 +14,10 @@ import java.math.BigDecimal;
  * 2. Solo admite recargo (porcentaje positivo o cero).
  *
  * Colaboradores:
- * - TipoSocio: Sucede por herencia.
+ * - Categoria: Sucede por herencia.
  * ============================================================================
  */
-public class Adherente extends TipoSocio {
+public class Adherente extends Categoria {
     private static final Adherente INSTANCIA = new Adherente();
 
     private Adherente() {

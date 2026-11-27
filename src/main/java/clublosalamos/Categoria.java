@@ -6,7 +6,7 @@ import java.math.BigDecimal;
  * ============================================================================
  * CARTA CRC
  * ============================================================================
- * Nombre de la clase: TipoSocio
+ * Nombre de la clase: Categoria
  *
  * Responsabilidades:
  * 1. Guarda la descripción de una categoría de socio y su porcentaje de
@@ -21,14 +21,14 @@ import java.math.BigDecimal;
  * - Socio: Socio la conoce como su categoría.
  * - Reserva: Reserva la consulta para calcular el importe final.
  * - Club: Club modifica su porcentaje de ajuste.
- * - Importe: TipoSocio redondea el importe ajustado a centavos.
+ * - Importe: Categoria redondea el importe ajustado a centavos.
  * ============================================================================
  */
-public abstract class TipoSocio {
+public abstract class Categoria {
     private final String descripcion;
     private BigDecimal porcentajeAjuste; // fracción: negativo = descuento, positivo = recargo (0.2 = 20%)
 
-    protected TipoSocio(String descripcion, BigDecimal porcentajeAjuste) {
+    protected Categoria(String descripcion, BigDecimal porcentajeAjuste) {
         this.descripcion = descripcion;
         this.porcentajeAjuste = porcentajeAjuste;
     }

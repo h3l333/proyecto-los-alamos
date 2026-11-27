@@ -13,10 +13,10 @@ import java.math.BigDecimal;
  *   categoría de socio que abona la tarifa estándar.
  *
  * Colaboradores:
- * - TipoSocio: Sucede por herencia.
+ * - Categoria: Sucede por herencia.
  * ============================================================================
  */
-public class Activo extends TipoSocio {
+public class Activo extends Categoria {
     private static final Activo INSTANCIA = new Activo();
 
     private Activo() {

@@ -20,7 +20,7 @@ import java.time.LocalDate;
  * Colaboradores:
  * - SituacionAdmin: Socio le consulta si puede reservar y le delega las
  *   transiciones de situación administrativa.
- * - TipoSocio: Socio lo conoce como su categoría.
+ * - Categoria: Socio lo conoce como su categoría.
  * ============================================================================
  */
 // Implementación pendiente de aprobación final del profesor en el diagrama de casos de uso.
@@ -33,10 +33,11 @@ public class Socio {
     private final String correoElectronico;
     private final LocalDate fechaIngreso;
     private SituacionAdmin situacionAdministrativa;
-    private final TipoSocio tipo;
+    private final Categoria categoria;
 
     public Socio(int numeroSocio, String nombre, String apellido, String documento, String telefono,
-                 String correoElectronico, LocalDate fechaIngreso, SituacionAdmin situacionAdministrativa, TipoSocio tipo) {
+                 String correoElectronico, LocalDate fechaIngreso, SituacionAdmin situacionAdministrativa,
+                 Categoria categoria) {
         if (numeroSocio <= 0) {
             throw new IllegalArgumentException("El número de socio debe ser mayor a cero");
         }
@@ -51,7 +52,7 @@ public class Socio {
         this.correoElectronico = correoElectronico;
         this.fechaIngreso = fechaIngreso;
         this.situacionAdministrativa = situacionAdministrativa;
-        this.tipo = tipo;
+        this.categoria = categoria;
     }
 
     private static boolean esVacio(String texto) {
@@ -110,8 +111,8 @@ public class Socio {
         return fechaIngreso;
     }
 
-    public TipoSocio getTipoSocio() {
-        return tipo;
+    public Categoria getCategoria() {
+        return categoria;
     }
 
     public SituacionAdmin getSituacionAdministrativa() {

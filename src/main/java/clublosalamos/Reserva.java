@@ -31,7 +31,7 @@ import java.util.ArrayList;
  * - Pago: Reserva registra los pagos realizados.
  * - EstadoReserva: Reserva lo conoce como su estado y le delega las
  *   transiciones, la validación de pagos y si ocupa el recurso.
- * - TipoSocio: Reserva le pide aplicar el ajuste de la categoría del socio.
+ * - Categoria: Reserva le pide aplicar el ajuste de la categoría del socio.
  * - Importe: Reserva redondea el pago inicial a centavos.
  * ============================================================================
  */
@@ -110,7 +110,7 @@ public class Reserva {
     }
 
     private static BigDecimal calcularImporteTotal(Socio socio, Recurso recurso, int duracionHoras) {
-        return socio.getTipoSocio().aplicarAjuste(recurso.getPrecioBaseHora().multiply(BigDecimal.valueOf(duracionHoras)));
+        return socio.getCategoria().aplicarAjuste(recurso.getPrecioBaseHora().multiply(BigDecimal.valueOf(duracionHoras)));
     }
 
     // Si el 50% cae en medio centavo se redondea. El saldo pendiente absorbe la diferencia.

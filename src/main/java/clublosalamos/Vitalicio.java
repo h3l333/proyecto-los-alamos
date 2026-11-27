@@ -15,10 +15,10 @@ import java.math.BigDecimal;
  * 2. Solo admite descuento (porcentaje negativo o cero).
  *
  * Colaboradores:
- * - TipoSocio: Sucede por herencia.
+ * - Categoria: Sucede por herencia.
  * ============================================================================
  */
-public class Vitalicio extends TipoSocio {
+public class Vitalicio extends Categoria {
     private static final Vitalicio INSTANCIA = new Vitalicio();
 
     private Vitalicio() {

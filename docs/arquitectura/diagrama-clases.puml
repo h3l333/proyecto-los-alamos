@@ -10,7 +10,7 @@ class Socio {
     - correoElectronico: String
     - fechaIngreso: Date
     - situacionAdministrativa: SituacionAdmin
-    - tipo: TipoSocio
+    - categoria: Categoria
     --
     + puedeReservar(): boolean
     + describirSituacion(): String
@@ -25,11 +25,11 @@ class Socio {
     + getTelefono(): String
     + getCorreoElectronico(): String
     + getFechaIngreso(): Date
-    + getTipoSocio(): TipoSocio
+    + getCategoria(): Categoria
     + getSituacionAdministrativa(): SituacionAdmin
 }
 
-abstract class TipoSocio {
+abstract class Categoria {
     - descripcion: String
     - porcentajeAjuste: BigDecimal
     --
@@ -41,18 +41,18 @@ abstract class TipoSocio {
     + describir(): String
 }
 
-class Activo extends TipoSocio {
+class Activo extends Categoria {
 }
 
-class Adherente extends TipoSocio {
+class Adherente extends Categoria {
     # validarAjuste(porcentaje: BigDecimal): void
 }
 
-class Vitalicio extends TipoSocio {
+class Vitalicio extends Categoria {
     # validarAjuste(porcentaje: BigDecimal): void
 }
 
-note right of TipoSocio: porcentajeAjuste se expresa como fracción:\npositivo = recargo, negativo = descuento.\nCada categoría es un singleton con\ninstanciación temprana (constructor privado\ny getInstancia()), igual que los estados de\nReserva y las situaciones administrativas.
+note right of Categoria: porcentajeAjuste se expresa como fracción:\npositivo = recargo, negativo = descuento.\nCada categoría es un singleton con\ninstanciación temprana (constructor privado\ny getInstancia()), igual que los estados de\nReserva y las situaciones administrativas.
 
 note as NotaSingletons
     PagoParcial, Confirmada, Cancelada, Finalizada,
@@ -261,7 +261,7 @@ class Club {
     + registrarCancha(codigo: String, descripcion: String, capacidadMaxima: int, precioBaseHora: BigDecimal, habilitado: boolean, tipoDeporte: String, tieneIluminacion: boolean): Recurso
     + registrarParrilla(codigo: String, descripcion: String, capacidadMaxima: int, precioBaseHora: BigDecimal, habilitado: boolean, capacidadKgCarne: double): Recurso
     + registrarEspacioRecreacion(codigo: String, descripcion: String, capacidadMaxima: int, precioBaseHora: BigDecimal, habilitado: boolean, tipoEspacio: String): Recurso
-    + registrarSocio(numeroSocio: int, nombre: String, apellido: String, documento: String, telefono: String, correo: String, tipo: TipoSocio): void
+    + registrarSocio(numeroSocio: int, nombre: String, apellido: String, documento: String, telefono: String, correo: String, categoria: Categoria): void
     + verificarSituacionAdministrativa(numeroSocio: int): boolean
     + describirSituacionAdministrativa(numeroSocio: int): String
     + darSocioDeBaja(numeroSocio: int): void
@@ -277,7 +277,7 @@ class Club {
     + consultarReservasPorSocio(numeroSocio: int): ArrayList<Reserva>
     + consultarReservasPorRecursoYFecha(codigoRecurso: String, fecha: Date): ArrayList<Reserva>
     + consultarReservasDelDia(fecha: Date): ArrayList<Reserva>
-    + configurarAjusteCategoria(tipo: TipoSocio, porcentaje: BigDecimal): void
+    + configurarAjusteCategoria(categoria: Categoria, porcentaje: BigDecimal): void
     + describirCategorias(): String
 }
 
@@ -353,7 +353,7 @@ Club "1" o-- "0..*" Recurso : administra >
 Club "1" o-- "0..*" Reserva : gestiona >
 Socio "1" -- "0..*" Reserva : realiza >
 Socio "1" -- "1" SituacionAdmin : tiene >
-Socio "1" -- "1" TipoSocio : pertenece a >
+Socio "1" -- "1" Categoria : pertenece a >
 Recurso "1" -- "0..*" Reserva : es reservado en >
 Reserva "1" *-- "1..*" Pago : registra >
 Reserva "1" -- "1" EstadoReserva : tiene >

@@ -22,7 +22,7 @@ import java.time.LocalDate;
  *   debe mostrar.
  * - Pago: ClubController lo crea con sus factory methods.
  * - Reserva: ClubController la recibe de Club para que la vista la muestre.
- * - TipoSocio: ClubController traduce la opción elegida a una categoría.
+ * - Categoria: ClubController traduce la opción elegida a una categoría.
  * ============================================================================
  */
 public class ClubController {
@@ -156,13 +156,13 @@ public class ClubController {
         String documento = vista.pedirTexto("Documento: ");
         String telefono = vista.pedirTexto("Teléfono: ");
         String correo = vista.pedirTexto("Correo electrónico: ");
-        TipoSocio tipo = pedirTipoSocio();
-        modelo.registrarSocio(numeroSocio, nombre, apellido, documento, telefono, correo, tipo);
+        Categoria categoria = pedirCategoria();
+        modelo.registrarSocio(numeroSocio, nombre, apellido, documento, telefono, correo, categoria);
         vista.mostrarMensaje("Socio registrado correctamente.");
     }
 
     // Traduce la opción elegida en la vista a la categoría correspondiente.
-    private TipoSocio pedirTipoSocio() {
+    private Categoria pedirCategoria() {
         while (true) {
             switch (vista.mostrarMenuCategoria()) {
                 case 1:
@@ -280,9 +280,9 @@ public class ClubController {
 
     private void administrarCategorias() {
         vista.mostrarMensaje("Ajustes actuales: " + modelo.describirCategorias());
-        TipoSocio tipo = pedirTipoSocio();
+        Categoria categoria = pedirCategoria();
         BigDecimal porcentaje = vista.pedirBigDecimal("Nuevo porcentaje (positivo = recargo, negativo = descuento): ");
-        modelo.configurarAjusteCategoria(tipo, porcentaje);
+        modelo.configurarAjusteCategoria(categoria, porcentaje);
         vista.mostrarMensaje("Porcentaje actualizado correctamente.");
     }
 
