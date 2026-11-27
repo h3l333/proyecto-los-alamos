@@ -113,8 +113,10 @@ public class Club {
     // completa antes de que el socio cargue el pago.
     public BigDecimal calcularPagoInicial(int numeroSocio, String codigoRecurso, LocalDate fechaUso, int horaInicio,
                                           int duracionHoras) {
-        return Reserva.calcularPagoInicial(obtenerSocioQuePuedeReservar(numeroSocio), obtenerRecurso(codigoRecurso),
-                fechaUso, horaInicio, duracionHoras);
+        Socio socio = obtenerSocioQuePuedeReservar(numeroSocio);
+        Recurso recurso = obtenerRecurso(codigoRecurso);
+        Reserva.validarSolicitud(recurso, fechaUso, horaInicio, duracionHoras);
+        return Reserva.calcularPagoInicial(socio, recurso, duracionHoras);
     }
 
     // Registra una reserva a nombre de un socio. La reserva valida sus propios datos y la disponibilidad

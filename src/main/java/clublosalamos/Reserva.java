@@ -81,14 +81,14 @@ public class Reserva {
     }
 
     // Importe del pago inicial (50% del total) que corresponde a una reserva con estos datos.
-    // Valida la solicitud antes, para que el socio no cargue un pago de una reserva imposible.
-    public static BigDecimal calcularPagoInicial(Socio socio, Recurso recurso, LocalDate fechaUso, int horaInicio,
-                                                 int duracionHoras) {
-        validarSolicitud(recurso, fechaUso, horaInicio, duracionHoras);
+    // Supone una solicitud ya validada con validarSolicitud.
+    public static BigDecimal calcularPagoInicial(Socio socio, Recurso recurso, int duracionHoras) {
         return calcularPagoInicial(calcularImporteTotal(socio, recurso, duracionHoras));
     }
 
-    private static void validarSolicitud(Recurso recurso, LocalDate fechaUso, int horaInicio, int duracionHoras) {
+    // Verifica que una reserva con estos datos se pueda realizar. La usa el constructor y también Club,
+    // para rechazar la solicitud antes de que el socio cargue el pago.
+    public static void validarSolicitud(Recurso recurso, LocalDate fechaUso, int horaInicio, int duracionHoras) {
         if (duracionHoras <= 0) {
             throw new IllegalArgumentException("La duración debe ser mayor a cero");
         }

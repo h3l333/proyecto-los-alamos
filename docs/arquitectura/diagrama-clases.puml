@@ -146,8 +146,8 @@ class Reserva {
     - saldoPendiente: BigDecimal
     - estado: EstadoReserva
     --
-    + {static} calcularPagoInicial(socio: Socio, recurso: Recurso, fechaUso: Date, horaInicio: int, duracionHoras: int): BigDecimal
-    - {static} validarSolicitud(recurso: Recurso, fechaUso: Date, horaInicio: int, duracionHoras: int): void
+    + {static} calcularPagoInicial(socio: Socio, recurso: Recurso, duracionHoras: int): BigDecimal
+    + {static} validarSolicitud(recurso: Recurso, fechaUso: Date, horaInicio: int, duracionHoras: int): void
     - registrarPago(pago: Pago): void
     + confirmar(pagoSaldo: Pago): void
     + cancelar(): void
