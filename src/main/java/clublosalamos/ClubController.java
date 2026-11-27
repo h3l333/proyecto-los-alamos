@@ -214,6 +214,10 @@ public class ClubController {
         int horaInicio = vista.pedirEntero("Hora de inicio (0 a 23): ");
         int duracionHoras = vista.pedirEntero("Duración en horas: ");
 
+        // Se valida de antemano la solicitud para no hacerle al usuario cargar datos de un pago que después
+        // se va a rechazar. Además, calcularPagoInicial supone datos válidos: no pretende calcular el monto
+        // de una reserva que no se puede realizar ni calcularlo con datos sin sentido (por ejemplo, una
+        // duración negativa).
         modelo.validarSolicitudReserva(numeroSocio, codigoRecurso, fechaUso, horaInicio, duracionHoras);
         BigDecimal pagoInicial = modelo.calcularPagoInicial(numeroSocio, codigoRecurso, duracionHoras);
         vista.mostrarMensaje("Pago inicial a abonar (50%): $" + pagoInicial);
