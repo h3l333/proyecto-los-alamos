@@ -268,7 +268,8 @@ class Club {
     + suspenderSocio(numeroSocio: int): void
     + marcarSocioMoroso(numeroSocio: int): void
     + habilitarSocio(numeroSocio: int): void
-    + calcularPagoInicial(numeroSocio: int, codigoRecurso: String, fechaUso: Date, horaInicio: int, duracionHoras: int): BigDecimal
+    + validarSolicitudReserva(numeroSocio: int, codigoRecurso: String, fechaUso: Date, horaInicio: int, duracionHoras: int): void
+    + calcularPagoInicial(numeroSocio: int, codigoRecurso: String, duracionHoras: int): BigDecimal
     + registrarReserva(numeroSocio: int, codigoRecurso: String, fechaUso: Date, horaInicio: int, duracionHoras: int, pagoInicial: Pago): Reserva
     + consultarSaldoPendiente(numeroReserva: int): BigDecimal
     + confirmarReserva(numeroReserva: int, pagoSaldo: Pago): void

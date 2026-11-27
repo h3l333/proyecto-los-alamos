@@ -37,7 +37,7 @@ Si Eclipse marca error de versión de Java: clic derecho sobre el proyecto -> Pr
 
 ### Diagrama de clases
 
-![Diagrama de clases](https://www.plantuml.com/plantuml/proxy?src=https://raw.githubusercontent.com/h3l333/proyecto-los-alamos/main/docs/arquitectura/diagrama-clases.puml&fmt=svg&cache=c71442bb)
+![Diagrama de clases](https://www.plantuml.com/plantuml/proxy?src=https://raw.githubusercontent.com/h3l333/proyecto-los-alamos/main/docs/arquitectura/diagrama-clases.puml&fmt=svg&cache=6086199b)
 
 ### Diagrama de casos de uso
 

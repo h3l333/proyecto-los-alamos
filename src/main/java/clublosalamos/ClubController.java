@@ -214,8 +214,8 @@ public class ClubController {
         int horaInicio = vista.pedirEntero("Hora de inicio (0 a 23): ");
         int duracionHoras = vista.pedirEntero("Duración en horas: ");
 
-        BigDecimal pagoInicial = modelo.calcularPagoInicial(numeroSocio, codigoRecurso, fechaUso, horaInicio,
-                duracionHoras);
+        modelo.validarSolicitudReserva(numeroSocio, codigoRecurso, fechaUso, horaInicio, duracionHoras);
+        BigDecimal pagoInicial = modelo.calcularPagoInicial(numeroSocio, codigoRecurso, duracionHoras);
         vista.mostrarMensaje("Pago inicial a abonar (50%): $" + pagoInicial);
         Pago pago = pedirPago(pagoInicial);
         Reserva reserva = modelo.registrarReserva(numeroSocio, codigoRecurso, fechaUso, horaInicio, duracionHoras,
