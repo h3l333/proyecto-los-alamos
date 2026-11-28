@@ -20,8 +20,8 @@ public class Salon extends Recurso {
     private final boolean tieneAireAcondicionado;
     private final boolean poseeEscenario;
 
-    public Salon(String codigo, String descripcion, int capacidadMaxima, BigDecimal precioBaseHora, boolean habilitado,
-                boolean tieneAireAcondicionado, boolean poseeEscenario) {
+    public Salon(String codigo, String descripcion, int capacidadMaxima, BigDecimal precioBaseHora,
+                 boolean habilitado, boolean tieneAireAcondicionado, boolean poseeEscenario) {
         super(codigo, descripcion, capacidadMaxima, precioBaseHora, habilitado);
         this.tieneAireAcondicionado = tieneAireAcondicionado;
         this.poseeEscenario = poseeEscenario;

@@ -32,7 +32,8 @@ public class Vitalicio extends Categoria {
     @Override
     protected void validarAjuste(BigDecimal p) {
         if (p.signum() > 0) {
-            throw new IllegalArgumentException("La categoría Vitalicio solo admite descuento (porcentaje negativo o cero)");
+            throw new IllegalArgumentException(
+                    "La categoría Vitalicio solo admite descuento (porcentaje negativo o cero)");
         }
     }
 }

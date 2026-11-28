@@ -100,7 +100,7 @@ public class Club {
                 LocalDate.now(), Habilitado.getInstancia(), categoria));
     }
 
-    // Describe si un socio puede reservar o no dependiendo de su situacion administrativa.
+    // Describe si un socio puede reservar o no dependiendo de su situación administrativa.
     public boolean verificarSituacionAdministrativa(int numeroSocio) {
         return obtenerSocio(numeroSocio).puedeReservar();
     }

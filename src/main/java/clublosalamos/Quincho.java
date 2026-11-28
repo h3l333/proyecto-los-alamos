@@ -21,8 +21,8 @@ public class Quincho extends Recurso {
     private final boolean tieneFreezer;
     private final int cantidadMesas;
 
-    public Quincho(String codigo, String descripcion, int capacidadMaxima, BigDecimal precioBaseHora, boolean habilitado,
-                    boolean esCerrado, boolean tieneFreezer, int cantidadMesas) {
+    public Quincho(String codigo, String descripcion, int capacidadMaxima, BigDecimal precioBaseHora,
+                   boolean habilitado, boolean esCerrado, boolean tieneFreezer, int cantidadMesas) {
         super(codigo, descripcion, capacidadMaxima, precioBaseHora, habilitado);
         this.esCerrado = esCerrado;
         this.tieneFreezer = tieneFreezer;

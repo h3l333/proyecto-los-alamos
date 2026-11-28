@@ -32,7 +32,8 @@ public abstract class Recurso {
     private final boolean habilitado;
     private final ArrayList<Reserva> reservas;
 
-    protected Recurso(String codigo, String descripcion, int capacidadMaxima, BigDecimal precioBaseHora, boolean habilitado) {
+    protected Recurso(String codigo, String descripcion, int capacidadMaxima, BigDecimal precioBaseHora,
+                      boolean habilitado) {
         if (codigo == null || codigo.isEmpty()) {
             throw new IllegalArgumentException("El código del recurso es obligatorio");
         }

@@ -21,7 +21,7 @@ package clublosalamos;
  */
 public abstract class SituacionAdmin {
     private final String descSituacionAdmin;
-    
+
     protected SituacionAdmin(String descSituacionAdmin) {
         this.descSituacionAdmin = descSituacionAdmin;
     }

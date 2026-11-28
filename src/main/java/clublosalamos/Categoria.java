@@ -33,8 +33,14 @@ public abstract class Categoria {
         this.porcentajeAjuste = porcentajeAjuste;
     }
 
-    public String getDescripcion() { return descripcion; }
-    public BigDecimal getPorcentajeAjuste() { return porcentajeAjuste; }
+    public String getDescripcion() {
+        return descripcion;
+    }
+
+    public BigDecimal getPorcentajeAjuste() {
+        return porcentajeAjuste;
+    }
+
     public void setPorcentajeAjuste(BigDecimal p) {
         if (p.compareTo(BigDecimal.ONE.negate()) <= 0) {
             throw new IllegalArgumentException("El descuento no puede ser del 100% o más");

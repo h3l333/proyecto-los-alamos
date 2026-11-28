@@ -31,7 +31,8 @@ public class Adherente extends Categoria {
     @Override
     protected void validarAjuste(BigDecimal p) {
         if (p.signum() < 0) {
-            throw new IllegalArgumentException("La categoría Adherente solo admite recargo (porcentaje positivo o cero)");
+            throw new IllegalArgumentException(
+                    "La categoría Adherente solo admite recargo (porcentaje positivo o cero)");
         }
     }
 }
