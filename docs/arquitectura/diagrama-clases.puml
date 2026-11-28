@@ -8,11 +8,10 @@ class Socio {
     - documento: String
     - telefono: String
     - correoElectronico: String
-    - fechaIngreso: LocalDate
+    - fechaIngreso: Date
     - situacionAdministrativa: SituacionAdmin
     - categoria: Categoria
     --
-    - {static} esVacio(texto: String): boolean
     + puedeReservar(): boolean
     + describirSituacion(): String
     + suspender(): void
@@ -25,7 +24,7 @@ class Socio {
     + getDocumento(): String
     + getTelefono(): String
     + getCorreoElectronico(): String
-    + getFechaIngreso(): LocalDate
+    + getFechaIngreso(): Date
     + getCategoria(): Categoria
     + getSituacionAdministrativa(): SituacionAdmin
 }
@@ -79,9 +78,9 @@ abstract class Recurso {
     - habilitado: boolean
     - reservas: ArrayList<Reserva>
     --
-    + estaDisponible(fecha: LocalDate, horaInicio: int, horas: int): boolean
+    + estaDisponible(fecha: Date, horaInicio: int, horas: int): boolean
     + agregarReserva(reserva: Reserva): void
-    + {abstract} devolverTipo(): String
+    + devolverTipo(): String
     + getDetalle(): String
     + getCodigo(): String
     + getDescripcion(): String
@@ -95,7 +94,6 @@ class Quincho extends Recurso {
     - tieneFreezer: boolean
     - cantidadMesas: int
     --
-    + devolverTipo(): String
     + getDetalle(): String
     + isEsCerrado(): boolean
     + isTieneFreezer(): boolean
@@ -106,7 +104,6 @@ class Salon extends Recurso {
     - tieneAireAcondicionado: boolean
     - poseeEscenario: boolean
     --
-    + devolverTipo(): String
     + getDetalle(): String
     + isTieneAireAcondicionado(): boolean
     + isPoseeEscenario(): boolean
@@ -116,7 +113,6 @@ class Cancha extends Recurso {
     - tipoDeporte: String
     - tieneIluminacion: boolean
     --
-    + devolverTipo(): String
     + getDetalle(): String
     + getTipoDeporte(): String
     + isTieneIluminacion(): boolean
@@ -125,7 +121,6 @@ class Cancha extends Recurso {
 class Parrilla extends Recurso {
     - capacidadKgCarne: double
     --
-    + devolverTipo(): String
     + getDetalle(): String
     + getCapacidadKgCarne(): double
 }
@@ -133,7 +128,6 @@ class Parrilla extends Recurso {
 class EspacioRecreacion extends Recurso {
     - tipoEspacio: String
     --
-    + devolverTipo(): String
     + getDetalle(): String
     + getTipoEspacio(): String
 }
@@ -142,10 +136,8 @@ class Reserva {
     - {static} proximoNumero: int
     - {static} PORCENTAJE_PAGO_INICIAL: BigDecimal = 0.5
     - numeroReserva: int
-    - fechaCreacion: LocalDateTime
-    - socio: Socio
-    - recurso: Recurso
-    - fechaUso: LocalDate
+    - fechaCreacion: DateTime
+    - fechaUso: Date
     - horaInicio: int
     - duracionHoras: int
     - importeTotal: BigDecimal
@@ -155,25 +147,22 @@ class Reserva {
     - estado: EstadoReserva
     --
     + {static} calcularPagoInicial(socio: Socio, recurso: Recurso, duracionHoras: int): BigDecimal
-    + {static} validarSolicitud(recurso: Recurso, fechaUso: LocalDate, horaInicio: int, duracionHoras: int): void
-    - {static} calcularImporteTotal(socio: Socio, recurso: Recurso, duracionHoras: int): BigDecimal
-    - {static} calcularPagoInicial(importeTotal: BigDecimal): BigDecimal
+    + {static} validarSolicitud(recurso: Recurso, fechaUso: Date, horaInicio: int, duracionHoras: int): void
     - registrarPago(pago: Pago): void
     + confirmar(pagoSaldo: Pago): void
     + cancelar(): void
     + finalizar(): void
-    + ocupaFranja(fecha: LocalDate, hora: int, horas: int): boolean
+    + ocupaFranja(fecha: Date, hora: int, horas: int): boolean
     + esDelSocio(numeroSocio: int): boolean
     + esDelRecurso(codigoRecurso: String): boolean
-    + esDelDia(fecha: LocalDate): boolean
+    + esDelDia(fecha: Date): boolean
     + getCorreoSocio(): String
-    - describirMediosPago(): String
     + resumen(): String
     + getNumeroReserva(): int
     + getSocio(): Socio
     + getRecurso(): Recurso
-    + getFechaCreacion(): LocalDateTime
-    + getFechaUso(): LocalDate
+    + getFechaCreacion(): DateTime
+    + getFechaUso(): Date
     + getHoraInicio(): int
     + getDuracionHoras(): int
     + getImporteTotal(): BigDecimal
@@ -209,7 +198,6 @@ class Cancelada extends EstadoReserva {
 }
 
 class Finalizada extends EstadoReserva {
-    + ocupaRecurso(): boolean
 }
 
 note right of Reserva: el número se genera con una variable\nde clase y solo se consume si la reserva\nes válida. Los medios de pago utilizados\nse obtienen de los Pago asociados\nmediante getMedioPago(), no se duplican\ncomo atributo. Las transiciones inválidas\nlanzan IllegalStateException (patrón State).
@@ -218,13 +206,13 @@ abstract class Pago {
     - {static} proximoId: int
     - idPago: int
     - monto: BigDecimal
-    - fechaHora: LocalDateTime
+    - fechaHora: DateTime
     --
     + {static} crearCredito(monto: BigDecimal, bancoEmisor: String, cantCuotas: int): Pago
     + {static} crearDebito(monto: BigDecimal, bancoEmisor: String, cbu: String, titularCuenta: String): Pago
     + {static} crearBilleteraVirtual(monto: BigDecimal, nombrePlataforma: String, cvu: String, alias: String): Pago
-    + {abstract} getMedioPago(): String
-    + getFechaHora(): LocalDateTime
+    + getMedioPago(): String
+    + getFechaHora(): DateTime
     + getIdPago(): int
     + getMonto(): BigDecimal
 }
@@ -273,7 +261,6 @@ class Club {
     + registrarCancha(codigo: String, descripcion: String, capacidadMaxima: int, precioBaseHora: BigDecimal, habilitado: boolean, tipoDeporte: String, tieneIluminacion: boolean): Recurso
     + registrarParrilla(codigo: String, descripcion: String, capacidadMaxima: int, precioBaseHora: BigDecimal, habilitado: boolean, capacidadKgCarne: double): Recurso
     + registrarEspacioRecreacion(codigo: String, descripcion: String, capacidadMaxima: int, precioBaseHora: BigDecimal, habilitado: boolean, tipoEspacio: String): Recurso
-    - registrarRecurso(recurso: Recurso): Recurso
     + registrarSocio(numeroSocio: int, nombre: String, apellido: String, documento: String, telefono: String, correo: String, categoria: Categoria): void
     + verificarSituacionAdministrativa(numeroSocio: int): boolean
     + describirSituacionAdministrativa(numeroSocio: int): String
@@ -281,22 +268,18 @@ class Club {
     + suspenderSocio(numeroSocio: int): void
     + marcarSocioMoroso(numeroSocio: int): void
     + habilitarSocio(numeroSocio: int): void
-    + validarSolicitudReserva(numeroSocio: int, codigoRecurso: String, fechaUso: LocalDate, horaInicio: int, duracionHoras: int): void
+    + validarSolicitudReserva(numeroSocio: int, codigoRecurso: String, fechaUso: Date, horaInicio: int, duracionHoras: int): void
     + calcularPagoInicial(numeroSocio: int, codigoRecurso: String, duracionHoras: int): BigDecimal
-    + registrarReserva(numeroSocio: int, codigoRecurso: String, fechaUso: LocalDate, horaInicio: int, duracionHoras: int, pagoInicial: Pago): Reserva
+    + registrarReserva(numeroSocio: int, codigoRecurso: String, fechaUso: Date, horaInicio: int, duracionHoras: int, pagoInicial: Pago): Reserva
     + consultarSaldoPendiente(numeroReserva: int): BigDecimal
     + confirmarReserva(numeroReserva: int, pagoSaldo: Pago): void
     + cancelarReserva(numeroReserva: int): void
     + finalizarReserva(numeroReserva: int): void
     + consultarReservasPorSocio(numeroSocio: int): ArrayList<Reserva>
-    + consultarReservasPorRecursoYFecha(codigoRecurso: String, fecha: LocalDate): ArrayList<Reserva>
-    + consultarReservasDelDia(fecha: LocalDate): ArrayList<Reserva>
+    + consultarReservasPorRecursoYFecha(codigoRecurso: String, fecha: Date): ArrayList<Reserva>
+    + consultarReservasDelDia(fecha: Date): ArrayList<Reserva>
     + configurarAjusteCategoria(categoria: Categoria, porcentaje: BigDecimal): void
     + describirCategorias(): String
-    - obtenerSocio(numeroSocio: int): Socio
-    - obtenerSocioQuePuedeReservar(numeroSocio: int): Socio
-    - obtenerRecurso(codigoRecurso: String): Recurso
-    - obtenerReserva(numeroReserva: int): Reserva
 }
 
 note right of Club: Doble Almacenamiento: reservas (Hashtable)\npara el acceso directo por número y\nreservasPorCreacion (ArrayList) para\nrecorrerlas en orden de creación. Se\nactualizan juntos en registrarReserva().\nLas búsquedas por identificador lanzan\nIllegalArgumentException si no existen.
@@ -305,7 +288,7 @@ abstract class SituacionAdmin {
     - descSituacionAdmin: String
     --
     + getSituacionAdmin(): String
-    + {abstract} puedeReservar(): boolean
+    + puedeReservar(): boolean
     + suspender(): SituacionAdmin
     + marcarMoroso(): SituacionAdmin
     + habilitar(): SituacionAdmin
@@ -345,7 +328,7 @@ class ConsoleView {
     + pedirDouble(mensaje: String): double
     + pedirBigDecimal(mensaje: String): BigDecimal
     + pedirBooleano(mensaje: String): boolean
-    + pedirFecha(mensaje: String): LocalDate
+    + pedirFecha(mensaje: String): Date
     + mostrarMensaje(mensaje: String): void
     + mostrarReservas(reservas: ArrayList<Reserva>, titulo: String): void
     + mostrarEmailConfirmacion(reserva: Reserva): void
@@ -356,24 +339,6 @@ class ClubController {
     - vista: ConsoleView
     --
     + iniciar(): void
-    - ejecutar(opcion: int): void
-    - registrarRecurso(): void
-    - registrarSocio(): void
-    - pedirCategoria(): Categoria
-    - darSocioDeBaja(): void
-    - suspenderSocio(): void
-    - marcarSocioMoroso(): void
-    - habilitarSocio(): void
-    - verificarSituacionAdministrativa(): void
-    - registrarReserva(): void
-    - pedirPago(monto: BigDecimal): Pago
-    - confirmarReserva(): void
-    - cancelarReserva(): void
-    - finalizarReserva(): void
-    - consultarReservasPorSocio(): void
-    - consultarReservasPorRecursoYFecha(): void
-    - administrarCategorias(): void
-    - generarInformeDelDia(): void
 }
 
 class Main {
@@ -381,16 +346,16 @@ class Main {
     + {static} main(args: String[]): void
 }
 
-Main ..> ClubController : crea >
+Main "1" -- "1" ClubController : crea >
 ClubController "1" -- "1" Club : modelo >
 ClubController "1" -- "1" ConsoleView : vista >
 Club "1" o-- "0..*" Socio : registra >
 Club "1" o-- "0..*" Recurso : administra >
 Club "1" o-- "0..*" Reserva : gestiona >
 Socio "1" -- "0..*" Reserva : realiza >
-Socio "0..*" -- "1" SituacionAdmin : tiene >
-Socio "0..*" -- "1" Categoria : pertenece a >
+Socio "1" -- "1" SituacionAdmin : tiene >
+Socio "1" -- "1" Categoria : pertenece a >
 Recurso "1" -- "0..*" Reserva : es reservado en >
 Reserva "1" *-- "1..*" Pago : registra >
-Reserva "0..*" -- "1" EstadoReserva : tiene >
+Reserva "1" -- "1" EstadoReserva : tiene >
 @enduml
