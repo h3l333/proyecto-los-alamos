@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 
-# El shebang sirve para decirle al sistema operativo qué prograba debe usar
+# El shebang sirve para decirle al sistema operativo qué programa debe usar
 # para ejecutar el código a continuación.
 
 # El siguiente script, escrito en el lenguaje de scripting de shell de Bash,

@@ -1,7 +1,5 @@
 # General
 target/
-*.class
-tareas-pendientes.txt
 
 # Generados por Eclipse
 .classpath
