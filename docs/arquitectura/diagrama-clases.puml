@@ -189,14 +189,12 @@ abstract class EstadoReserva {
     + confirmar(): EstadoReserva
     + cancelar(): EstadoReserva
     + finalizar(): EstadoReserva
-    + validarPago(): void
     + ocupaRecurso(): boolean
 }
 
 class PagoParcial extends EstadoReserva {
     + confirmar(): EstadoReserva
     + cancelar(): EstadoReserva
-    + validarPago(): void
 }
 
 class Confirmada extends EstadoReserva {

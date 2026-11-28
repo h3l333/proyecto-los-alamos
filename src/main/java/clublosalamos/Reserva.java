@@ -30,7 +30,7 @@ import java.util.ArrayList;
  *   disponibilidad.
  * - Pago: Reserva registra los pagos realizados.
  * - EstadoReserva: Reserva lo conoce como su estado y le delega las
- *   transiciones, la validación de pagos y si ocupa el recurso.
+ *   transiciones y si ocupa el recurso.
  * - Categoria: Reserva le pide aplicar el ajuste de la categoría del socio.
  * - Importe: Reserva redondea el pago inicial a centavos.
  * ============================================================================
@@ -119,12 +119,8 @@ public class Reserva {
         return Importe.redondear(importeTotal.multiply(PORCENTAJE_PAGO_INICIAL));
     }
 
-    // Solo se admiten pagos si el estado lo permite y el monto no supera el saldo pendiente.
+    // Supone un pago ya validado por quien lo llama (el constructor o confirmar).
     private void registrarPago(Pago pago) {
-        estado.validarPago();
-        if (pago.getMonto().compareTo(saldoPendiente) > 0) {
-            throw new IllegalArgumentException("El pago supera el saldo pendiente: " + saldoPendiente);
-        }
         pagos.add(pago);
         importeAbonado = importeAbonado.add(pago.getMonto());
         saldoPendiente = importeTotal.subtract(importeAbonado);

@@ -8,15 +8,13 @@ package clublosalamos;
  *
  * Responsabilidades:
  * 1. Guarda el nombre de un estado de una Reserva.
- * 2. Define las transiciones entre estados (confirmar, cancelar, finalizar)
- *   y si se admiten pagos. Por defecto toda operación es inválida; cada
- *   estado concreto sobrescribe las que permite y devuelve el estado
- *   siguiente (patrón State).
+ * 2. Define las transiciones entre estados (confirmar, cancelar, finalizar).
+ *   Por defecto toda transición es inválida; cada estado concreto sobrescribe
+ *   las que permite y devuelve el estado siguiente (patrón State).
  * 3. Indica si una reserva en este estado ocupa el recurso. Por defecto sí.
  *
  * Colaboradores:
- * - Reserva: Reserva le delega las transiciones de estado y la validación
- *   de pagos.
+ * - Reserva: Reserva le delega las transiciones de estado.
  * ============================================================================
  */
 public abstract class EstadoReserva {
@@ -40,10 +38,6 @@ public abstract class EstadoReserva {
 
     public EstadoReserva finalizar() {
         throw new IllegalStateException("No se puede finalizar una reserva en estado " + nombre);
-    }
-
-    public void validarPago() {
-        throw new IllegalStateException("No se pueden registrar pagos en una reserva en estado " + nombre);
     }
 
     // Por defecto una reserva ocupa el recurso en su franja horaria; los estados que lo liberan lo redefinen.

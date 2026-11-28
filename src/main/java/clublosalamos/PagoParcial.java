@@ -7,8 +7,7 @@ package clublosalamos;
  * Nombre de la clase: PagoParcial
  *
  * Responsabilidades:
- * 1. Provee acceso a la instancia única en el sistema de la clase PagoParcial
- *   y admite pagos.
+ * 1. Provee acceso a la instancia única en el sistema de la clase PagoParcial.
  * 2. Permite pasar a Confirmada o Cancelada.
  *
  * Colaboradores:
@@ -34,10 +33,5 @@ public class PagoParcial extends EstadoReserva {
     @Override
     public EstadoReserva cancelar() {
         return Cancelada.getInstancia();
-    }
-
-    @Override
-    public void validarPago() {
-        // Una reserva con pago parcial admite pagos.
     }
 }
